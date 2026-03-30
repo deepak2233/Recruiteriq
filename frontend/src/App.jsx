@@ -813,66 +813,114 @@ const SkillHeatmap = () => (
 );
 
 // ─── JD PANEL ─────────────────────────────────────────────────
-const JDPanel = ({ jd }) => (
-  <div>
-    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-      <FileText size={18} color={T.accent} />
-      <span style={{ fontSize: 16, fontWeight: 700, color: T.text }}>Job Description</span>
-      <Badge variant="success">Parsed</Badge>
-    </div>
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
-      <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
-        <div style={{ fontSize: 12, color: T.textMuted, fontWeight: 600, marginBottom: 8, textTransform: "uppercase" }}>Position</div>
-        <div style={{ fontSize: 18, fontWeight: 700, color: T.text }}>{jd.title}</div>
-        <div style={{ fontSize: 13, color: T.textMuted, marginTop: 4 }}>{jd.company}</div>
+const JDPanel = ({ jd, onUpdate }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [edited, setEdited] = useState(jd);
+
+  const handleSave = () => {
+    onUpdate(edited);
+    setIsEditing(false);
+  };
+
+  if (isEditing) {
+    return (
+      <div style={{ background: T.bgCard, borderRadius: 12, padding: 24, border: `1px solid ${T.borderActive}` }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+          <h3 style={{ fontSize: 18, fontWeight: 700 }}>Edit Job Description</h3>
+          <div style={{ display: "flex", gap: 10 }}>
+            <Btn variant="ghost" onClick={() => setIsEditing(false)}>Cancel</Btn>
+            <Btn variant="primary" onClick={handleSave}>Save Changes</Btn>
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
+          <div>
+            <label style={{ display: "block", fontSize: 12, color: T.textMuted, marginBottom: 6 }}>Job Title</label>
+            <input value={edited.title} onChange={e => setEdited({ ...edited, title: e.target.value })} style={{ width: "100%", padding: "10px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text, fontSize: 14 }} />
+          </div>
+          <div>
+            <label style={{ display: "block", fontSize: 12, color: T.textMuted, marginBottom: 6 }}>Company</label>
+            <input value={edited.company} onChange={e => setEdited({ ...edited, company: e.target.value })} style={{ width: "100%", padding: "10px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text, fontSize: 14 }} />
+          </div>
+          <div>
+            <label style={{ display: "block", fontSize: 12, color: T.textMuted, marginBottom: 6 }}>Location</label>
+            <input value={edited.location} onChange={e => setEdited({ ...edited, location: e.target.value })} style={{ width: "100%", padding: "10px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text, fontSize: 14 }} />
+          </div>
+          <div>
+            <label style={{ display: "block", fontSize: 12, color: T.textMuted, marginBottom: 6 }}>Salary Range</label>
+            <input value={edited.salary} onChange={e => setEdited({ ...edited, salary: e.target.value })} style={{ width: "100%", padding: "10px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text, fontSize: 14 }} />
+          </div>
+        </div>
+
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ display: "block", fontSize: 12, color: T.textMuted, marginBottom: 6 }}>Mandatory Skills (Comma separated)</label>
+          <input value={edited.mandatorySkills.join(", ")} onChange={e => setEdited({ ...edited, mandatorySkills: e.target.value.split(",").map(s => s.trim()) })} style={{ width: "100%", padding: "10px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text, fontSize: 14 }} />
+        </div>
+
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ display: "block", fontSize: 12, color: T.textMuted, marginBottom: 6 }}>Preferred Skills (Comma separated)</label>
+          <input value={edited.preferredSkills.join(", ")} onChange={e => setEdited({ ...edited, preferredSkills: e.target.value.split(",").map(s => s.trim()) })} style={{ width: "100%", padding: "10px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text, fontSize: 14 }} />
+        </div>
       </div>
-      <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, fontSize: 13 }}>
-          <div><span style={{ color: T.textMuted }}>Location:</span><div style={{ color: T.text, fontWeight: 600, marginTop: 2 }}>{jd.location}</div></div>
-          <div><span style={{ color: T.textMuted }}>Experience:</span><div style={{ color: T.text, fontWeight: 600, marginTop: 2 }}>{jd.experience}</div></div>
-          <div><span style={{ color: T.textMuted }}>Salary:</span><div style={{ color: T.text, fontWeight: 600, marginTop: 2 }}>{jd.salary}</div></div>
-          <div><span style={{ color: T.textMuted }}>Department:</span><div style={{ color: T.text, fontWeight: 600, marginTop: 2 }}>{jd.department}</div></div>
+    );
+  }
+
+  return (
+    <div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <FileText size={18} color={T.accent} />
+          <span style={{ fontSize: 16, fontWeight: 700, color: T.text }}>Job Description</span>
+          <Badge variant="success">Active</Badge>
+        </div>
+        <Btn variant="ghost" size="sm" icon={Edit3} onClick={() => setIsEditing(true)}>Edit JD</Btn>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
+        <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
+          <div style={{ fontSize: 12, color: T.textMuted, fontWeight: 600, marginBottom: 8, textTransform: "uppercase" }}>Position</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: T.text }}>{jd.title}</div>
+          <div style={{ fontSize: 13, color: T.textMuted, marginTop: 4 }}>{jd.company}</div>
+        </div>
+        <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, fontSize: 13 }}>
+            <div><span style={{ color: T.textMuted }}>Location:</span><div style={{ color: T.text, fontWeight: 600, marginTop: 2 }}>{jd.location}</div></div>
+            <div><span style={{ color: T.textMuted }}>Experience:</span><div style={{ color: T.text, fontWeight: 600, marginTop: 2 }}>{jd.experience}</div></div>
+            <div><span style={{ color: T.textMuted }}>Salary:</span><div style={{ color: T.text, fontWeight: 600, marginTop: 2 }}>{jd.salary}</div></div>
+            <div><span style={{ color: T.textMuted }}>Department:</span><div style={{ color: T.text, fontWeight: 600, marginTop: 2 }}>{jd.department}</div></div>
+          </div>
+        </div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
+        <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
+          <div style={{ fontSize: 12, color: T.danger, fontWeight: 600, marginBottom: 10, textTransform: "uppercase" }}>Mandatory Skills</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {jd.mandatorySkills.map(s => <Badge key={s} variant="danger" size="sm">{s}</Badge>)}
+          </div>
+        </div>
+        <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
+          <div style={{ fontSize: 12, color: T.cyan, fontWeight: 600, marginBottom: 10, textTransform: "uppercase" }}>Preferred Skills</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {jd.preferredSkills.map(s => <Badge key={s} variant="cyan" size="sm">{s}</Badge>)}
+          </div>
+        </div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 20 }}>
+        <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
+          <div style={{ fontSize: 12, color: T.textMuted, fontWeight: 600, marginBottom: 8, textTransform: "uppercase" }}>Education</div>
+          <div style={{ fontSize: 13, color: T.text }}>{jd.education}</div>
+        </div>
+        <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
+          <div style={{ fontSize: 12, color: T.textMuted, fontWeight: 600, marginBottom: 8, textTransform: "uppercase" }}>Certifications</div>
+          {jd.certifications.map(c => <div key={c} style={{ fontSize: 13, color: T.text }}>{c}</div>)}
+        </div>
+        <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
+          <div style={{ fontSize: 12, color: T.textMuted, fontWeight: 600, marginBottom: 8, textTransform: "uppercase" }}>Domain</div>
+          {jd.domainKnowledge.map(d => <Badge key={d} variant="purple" size="sm" style={{ marginBottom: 4 }}>{d}</Badge>)}
         </div>
       </div>
     </div>
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
-      <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
-        <div style={{ fontSize: 12, color: T.danger, fontWeight: 600, marginBottom: 10, textTransform: "uppercase" }}>Mandatory Skills</div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-          {jd.mandatorySkills.map(s => <Badge key={s} variant="danger" size="sm">{s}</Badge>)}
-        </div>
-      </div>
-      <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
-        <div style={{ fontSize: 12, color: T.cyan, fontWeight: 600, marginBottom: 10, textTransform: "uppercase" }}>Preferred Skills</div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-          {jd.preferredSkills.map(s => <Badge key={s} variant="cyan" size="sm">{s}</Badge>)}
-        </div>
-      </div>
-    </div>
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 20 }}>
-      <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
-        <div style={{ fontSize: 12, color: T.textMuted, fontWeight: 600, marginBottom: 8, textTransform: "uppercase" }}>Education</div>
-        <div style={{ fontSize: 13, color: T.text }}>{jd.education}</div>
-      </div>
-      <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
-        <div style={{ fontSize: 12, color: T.textMuted, fontWeight: 600, marginBottom: 8, textTransform: "uppercase" }}>Certifications</div>
-        {jd.certifications.map(c => <div key={c} style={{ fontSize: 13, color: T.text }}>{c}</div>)}
-      </div>
-      <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
-        <div style={{ fontSize: 12, color: T.textMuted, fontWeight: 600, marginBottom: 8, textTransform: "uppercase" }}>Domain</div>
-        {jd.domainKnowledge.map(d => <Badge key={d} variant="purple" size="sm" style={{ marginBottom: 4 }}>{d}</Badge>)}
-      </div>
-    </div>
-    <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
-      <div style={{ fontSize: 12, color: T.textMuted, fontWeight: 600, marginBottom: 10, textTransform: "uppercase" }}>Key Responsibilities</div>
-      {jd.responsibilities.map((r, i) => (
-        <div key={i} style={{ display: "flex", gap: 8, padding: "6px 0", fontSize: 13, color: T.text }}>
-          <ChevronRight size={14} color={T.accent} style={{ marginTop: 2, flexShrink: 0 }} />{r}
-        </div>
-      ))}
-    </div>
-  </div>
-);
+  );
+};
 
 // ─── MAIN DASHBOARD ───────────────────────────────────────────
 export default function HRDashboard() {
@@ -949,10 +997,34 @@ export default function HRDashboard() {
     }
   }, [candidates, jd]);
 
+  const updateJD = (newJd) => {
+    setJd(newJd);
+    saveToCloud(candidates, newJd);
+  };
+
+  const addCandidate = (c) => {
+    const next = [c, ...candidates];
+    setCandidates(next);
+    saveToCloud(next, jd);
+  };
+
+  const deleteCandidate = (id) => {
+    if (!window.confirm("Delete this candidate?")) return;
+    const next = candidates.filter(c => c.id !== id);
+    setCandidates(next);
+    saveToCloud(next, jd);
+  };
+
+  const clearAllData = () => {
+    if (!window.confirm("Are you sure? This will clear all candidates!")) return;
+    setCandidates([]);
+    saveToCloud([], jd);
+  };
+
   const toggleShortlist = (id) => {
     const next = candidates.map(c => c.id === id ? { ...c, shortlisted: !c.shortlisted } : c);
     setCandidates(next);
-    saveToCloud(next);
+    saveToCloud(next, jd);
   };
 
   const filtered = useMemo(() => {
@@ -984,6 +1056,8 @@ export default function HRDashboard() {
     { name: "Male", value: candidates.filter(c => c.gender === "Male").length },
   ];
   const DIVERSITY_COLORS = [T.purple, T.accent];
+
+  const [isAdding, setIsAdding] = useState(false);
 
   const NAV = [
     { id: "dashboard", label: "Dashboard", icon: <BarChart2 size={16} /> },
@@ -1062,8 +1136,9 @@ export default function HRDashboard() {
               <StatCard icon={Users} label="Total Applicants" value={stats.total} change="+12%" changeType="up" color={T.accent} />
               <StatCard icon={CheckCircle} label="Shortlisted" value={stats.shortlisted} change="+3" changeType="up" color={T.success} />
               <StatCard icon={XCircle} label="Rejected" value={stats.rejected} change="-2" changeType="down" color={T.danger} />
-              <StatCard icon={Target} label="Avg Match Score" value={`${stats.avgScore}%`} change="+5%" changeType="up" color={T.warning} />
+              <StatCard icon={Target} label="Avg Match Score" value={`${stats.avgScore || 0}%`} change="+5%" changeType="up" color={T.warning} />
               <StatCard icon={Star} label="Strong Hires" value={stats.strongHires} color={T.purple} />
+              <StatCard icon={RefreshCw} label="Reset All" value="Clear" color={T.danger} onClick={clearAllData} />
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 24, marginBottom: 24 }}>
@@ -1169,28 +1244,29 @@ export default function HRDashboard() {
                 <div style={{ fontSize: 20, fontWeight: 700, color: T.text }}>Candidates</div>
                 <div style={{ fontSize: 13, color: T.textMuted }}>{filtered.length} of {candidates.length} candidates</div>
               </div>
-              <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-                <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder="Search name, skill, company..." />
-                <select value={filterShortlisted} onChange={e => setFilterShortlisted(e.target.value)} style={{
-                  padding: "8px 12px", borderRadius: 8, border: `1px solid ${T.border}`, background: T.bgSurface,
-                  color: T.text, fontSize: 13, outline: "none", cursor: "pointer",
-                }}>
-                  <option value="all">All Status</option>
-                  <option value="yes">Shortlisted</option>
-                  <option value="no">Not Shortlisted</option>
-                </select>
-                <select value={`${sortBy}-${sortDir}`} onChange={e => {
-                  const [s, d] = e.target.value.split("-");
-                  setSortBy(s); setSortDir(d);
-                }} style={{
-                  padding: "8px 12px", borderRadius: 8, border: `1px solid ${T.border}`, background: T.bgSurface,
-                  color: T.text, fontSize: 13, outline: "none", cursor: "pointer",
-                }}>
-                  <option value="overallScore-desc">Score ↓</option>
-                  <option value="overallScore-asc">Score ↑</option>
-                  <option value="experience-desc">Experience ↓</option>
-                  <option value="experience-asc">Experience ↑</option>
-                </select>
+              <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+                <Btn icon={Plus} onClick={() => setIsAdding(true)}>Add Candidate</Btn>
+                <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                  <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder="Search name, skill, company..." />
+                  <select value={filterShortlisted} onChange={e => setFilterShortlisted(e.target.value)} style={{
+                    padding: "8px 12px", borderRadius: 8, border: `1px solid ${T.border}`, background: T.bgSurface,
+                    color: T.text, fontSize: 13, outline: "none", cursor: "pointer",
+                  }}>
+                    <option value="all">All Status</option>
+                    <option value="yes">Shortlisted</option>
+                    <option value="no">Not Shortlisted</option>
+                  </select>
+                  <select value={`${sortBy}-${sortDir}`} onChange={e => {
+                    const [s, d] = e.target.value.split("-");
+                    setSortBy(s); setSortDir(d);
+                  }} style={{
+                    padding: "8px 12px", borderRadius: 8, border: `1px solid ${T.border}`, background: T.bgSurface,
+                    color: T.text, fontSize: 13, outline: "none", cursor: "pointer",
+                  }}>
+                    <option value="overallScore-desc">Score ↓</option>
+                    <option value="overallScore-asc">Score ↑</option>
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -1228,11 +1304,14 @@ export default function HRDashboard() {
                       {c.recommendation}
                     </Badge>
                   </div>
-                  <div style={{ display: "flex", gap: 4 }} onClick={e => e.stopPropagation()}>
+                  <div style={{ display: "flex", gap: 10 }} onClick={e => e.stopPropagation()}>
                     <button onClick={() => toggleShortlist(c.id)} style={{
                       background: "none", border: "none", cursor: "pointer",
                       color: c.shortlisted ? T.success : T.textDim, transition: "color 0.2s",
                     }}><Star size={16} fill={c.shortlisted ? T.success : "none"} /></button>
+                    <button onClick={() => deleteCandidate(c.id)} style={{
+                      background: "none", border: "none", cursor: "pointer", color: T.textDim,
+                    }}><Trash2 size={16} /></button>
                   </div>
                 </div>
               ))}
@@ -1241,7 +1320,7 @@ export default function HRDashboard() {
         )}
 
         {/* ═══ JD VIEW ═══ */}
-        {activeView === "jd" && <JDPanel jd={jd} />}
+        {activeView === "jd" && <JDPanel jd={jd} onUpdate={updateJD} />}
 
         {/* ═══ COMPARE VIEW ═══ */}
         {activeView === "compare" && <ComparisonView candidates={candidates} jd={jd} />}
@@ -1337,6 +1416,49 @@ export default function HRDashboard() {
           onClose={() => setSelectedCandidate(null)}
           onShortlist={toggleShortlist}
         />
+      )}
+
+      {/* ─── ADD CANDIDATE MODAL ─── */}
+      {isAdding && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.8)", backdropFilter: "blur(4px)" }}>
+          <div style={{ background: T.bgCard, width: 500, borderRadius: 16, padding: 32, border: `1px solid ${T.borderActive}` }}>
+            <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 24 }}>Add New Candidate</h3>
+            <div style={{ display: "grid", gap: 16 }}>
+              <input id="new-name" placeholder="Full Name" style={{ width: "100%", padding: "12px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text }} />
+              <input id="new-exp" type="number" placeholder="Experience (years)" style={{ width: "100%", padding: "12px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text }} />
+              <input id="new-loc" placeholder="Location" style={{ width: "100%", padding: "12px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text }} />
+              <input id="new-skills" placeholder="Skills (comma separated)" style={{ width: "100%", padding: "12px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text }} />
+              <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
+                <Btn variant="ghost" s={{ flex: 1 }} onClick={() => setIsAdding(false)}>Cancel</Btn>
+                <Btn s={{ flex: 1 }} onClick={() => {
+                  const name = document.getElementById("new-name").value;
+                  const exp = parseFloat(document.getElementById("new-exp").value);
+                  const loc = document.getElementById("new-loc").value;
+                  const skills = document.getElementById("new-skills").value.split(",").map(s => s.trim());
+
+                  if (!name) return alert("Name is required");
+
+                  addCandidate({
+                    id: "C" + Date.now(),
+                    name,
+                    location: loc,
+                    experience: exp,
+                    skills,
+                    education: "B.Tech",
+                    companies: ["New Company"],
+                    overallScore: Math.floor(Math.random() * 40) + 60,
+                    recommendation: "Maybe",
+                    shortlisted: false,
+                    avatar: name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2),
+                    color: T.accent,
+                    noticePeriod: "30 days"
+                  });
+                  setIsAdding(false);
+                }}>Add Candidate</Btn>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
