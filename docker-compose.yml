@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  # ─── Backend API ───
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://recruitiq:recruitiq@db:5432/recruitiq
+      - ENVIRONMENT=development
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
+
+  # ─── PostgreSQL Database ───
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: recruitiq
+      POSTGRES_USER: recruitiq
+      POSTGRES_PASSWORD: recruitiq
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U recruitiq"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ─── pgAdmin (optional) ───
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@recruitiq.dev
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+
+volumes:
+  pgdata:
