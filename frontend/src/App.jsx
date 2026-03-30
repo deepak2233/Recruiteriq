@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area, Treemap } from "recharts";
 import { Search, Upload, FileText, Users, CheckCircle, XCircle, AlertTriangle, ChevronDown, ChevronRight, Star, Filter, Download, Eye, MessageSquare, Clock, Briefcase, GraduationCap, Award, MapPin, Phone, Mail, Linkedin, Github, TrendingUp, BarChart2, PieChart as PieChartIcon, Layers, Settings, Bell, Menu, X, Plus, Trash2, Edit3, Copy, ExternalLink, Zap, Target, Shield, BookOpen, Code, Database, Globe, Cpu, ArrowUpRight, ArrowDownRight, Minus, RefreshCw, ChevronLeft, MoreVertical, Hash, Calendar, DollarSign } from "lucide-react";
+import { supabase, isSupabaseConfigured } from "./supabase";
 
 // ─── DESIGN TOKENS ────────────────────────────────────────────
 const T = {
@@ -260,8 +261,8 @@ const ScoreRing = ({ score, size = 56, strokeWidth = 4, label }) => {
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
       <div style={{ position: "relative", width: size, height: size }}>
         <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
-          <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke={T.border} strokeWidth={strokeWidth} />
-          <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke={color} strokeWidth={strokeWidth}
+          <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke={T.border} strokeWidth={strokeWidth} />
+          <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke={color} strokeWidth={strokeWidth}
             strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round"
             style={{ transition: "stroke-dashoffset 1s ease" }} />
         </svg>
@@ -293,16 +294,18 @@ const StatCard = ({ icon: Icon, label, value, change, changeType, color = T.acce
     cursor: onClick ? "pointer" : "default", transition: "all 0.2s",
     ...(onClick ? {} : {}),
   }}
-  onMouseEnter={e => { e.currentTarget.style.borderColor = T.borderHover; e.currentTarget.style.transform = "translateY(-1px)"; }}
-  onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.transform = "translateY(0)"; }}
+    onMouseEnter={e => { e.currentTarget.style.borderColor = T.borderHover; e.currentTarget.style.transform = "translateY(-1px)"; }}
+    onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.transform = "translateY(0)"; }}
   >
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
       <div style={{ width: 36, height: 36, borderRadius: 8, background: `${color}15`, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <Icon size={18} color={color} />
       </div>
       {change !== undefined && (
-        <div style={{ display: "flex", alignItems: "center", gap: 2, fontSize: 12, fontWeight: 600,
-          color: changeType === "up" ? T.success : changeType === "down" ? T.danger : T.textMuted }}>
+        <div style={{
+          display: "flex", alignItems: "center", gap: 2, fontSize: 12, fontWeight: 600,
+          color: changeType === "up" ? T.success : changeType === "down" ? T.danger : T.textMuted
+        }}>
           {changeType === "up" ? <ArrowUpRight size={14} /> : changeType === "down" ? <ArrowDownRight size={14} /> : <Minus size={14} />}
           {change}
         </div>
@@ -874,6 +877,7 @@ const JDPanel = ({ jd }) => (
 // ─── MAIN DASHBOARD ───────────────────────────────────────────
 export default function HRDashboard() {
   const [candidates, setCandidates] = useState(generateCandidates);
+  const [jd, setJd] = useState(MOCK_JD);
   const [activeView, setActiveView] = useState("dashboard");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCandidate, setSelectedCandidate] = useState(null);
@@ -881,10 +885,74 @@ export default function HRDashboard() {
   const [sortDir, setSortDir] = useState("desc");
   const [filterShortlisted, setFilterShortlisted] = useState("all");
   const [filterMinScore, setFilterMinScore] = useState(0);
-  const jd = MOCK_JD;
+
+  // Sync with Supabase
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+
+    const channel = supabase
+      .channel('db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'settings',
+          filter: 'id=eq.recruiteriq'
+        },
+        (payload) => {
+          if (payload.new && payload.new.data) {
+            const d = payload.new.data;
+            if (d.candidates) setCandidates(d.candidates);
+            if (d.jd) setJd(d.jd);
+          }
+        }
+      )
+      .subscribe();
+
+    async function init() {
+      try {
+        const { data, error } = await supabase
+          .from('settings')
+          .select('data')
+          .eq('id', 'recruiteriq')
+          .single();
+
+        if (error) {
+          if (error.code === 'PGRST116') { // Not found
+            await supabase.from('settings').upsert({ id: 'recruiteriq', data: { candidates: generateCandidates(), jd: MOCK_JD } });
+          }
+        } else if (data && data.data) {
+          if (data.data.candidates) setCandidates(data.data.candidates);
+          if (data.data.jd) setJd(data.data.jd);
+        }
+      } catch (e) {
+        console.error("Supabase init error:", e);
+      }
+    }
+
+    init();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const saveToCloud = useCallback(async (newCandidates, newJd) => {
+    if (!isSupabaseConfigured) return;
+    try {
+      await supabase.from('settings').upsert({
+        id: 'recruiteriq',
+        data: { candidates: newCandidates || candidates, jd: newJd || jd }
+      });
+    } catch (e) {
+      console.error("Cloud save failed:", e);
+    }
+  }, [candidates, jd]);
 
   const toggleShortlist = (id) => {
-    setCandidates(prev => prev.map(c => c.id === id ? { ...c, shortlisted: !c.shortlisted } : c));
+    const next = candidates.map(c => c.id === id ? { ...c, shortlisted: !c.shortlisted } : c);
+    setCandidates(next);
+    saveToCloud(next);
   };
 
   const filtered = useMemo(() => {
@@ -1017,7 +1085,7 @@ export default function HRDashboard() {
                         </div>
                       </div>
                       <div style={{ fontSize: 11, color: T.textDim, width: 40, textAlign: "right" }}>
-                        {i > 0 ? `${Math.round((f.count / FUNNEL_DATA[i-1].count) * 100)}%` : "100%"}
+                        {i > 0 ? `${Math.round((f.count / FUNNEL_DATA[i - 1].count) * 100)}%` : "100%"}
                       </div>
                     </div>
                   ))}
@@ -1141,8 +1209,8 @@ export default function HRDashboard() {
                   padding: "14px 20px", borderBottom: `1px solid ${T.border}`, cursor: "pointer",
                   alignItems: "center", transition: "background 0.2s",
                 }}
-                onMouseEnter={e => e.currentTarget.style.background = T.bgCardHover}
-                onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                  onMouseEnter={e => e.currentTarget.style.background = T.bgCardHover}
+                  onMouseLeave={e => e.currentTarget.style.background = "transparent"}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                     <Avatar initials={c.avatar} color={c.color} size={36} />
