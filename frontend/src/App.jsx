@@ -58,7 +58,7 @@ const generateCandidates = () => [
     strengths: ["Exceptional full-stack expertise", "Strong system design skills", "Leadership experience", "Top-tier education"],
     gaps: ["No direct Elasticsearch experience", "Limited Terraform exposure"],
     redFlags: [],
-    recommendation: "Strong Hire", shortlisted: true, interviewStage: "Technical Round 2",
+    recommendation: "Strong Hire", shortlisted: true, stage: "Technical Round 2",
     recruiterNotes: "Excellent candidate. Strong system design skills demonstrated in portfolio.",
     avatar: "PS", color: T.success,
   },
@@ -76,7 +76,7 @@ const generateCandidates = () => [
     strengths: ["Strong DevOps & cloud expertise", "Amazon pedigree", "Kubernetes specialist"],
     gaps: ["Missing PostgreSQL (uses DynamoDB)", "No GraphQL experience", "Limited Python"],
     redFlags: ["Frequent job switches in early career"],
-    recommendation: "Hire", shortlisted: true, interviewStage: "HR Round",
+    recommendation: "Hire", shortlisted: true, stage: "HR Round",
     recruiterNotes: "Strong infra background. May need PostgreSQL ramp-up.",
     avatar: "AM", color: T.accent,
   },
@@ -94,7 +94,7 @@ const generateCandidates = () => [
     strengths: ["Strong search & data skills", "Microsoft experience", "Research background"],
     gaps: ["No AWS experience (Azure focused)", "Missing Kubernetes", "No CI/CD pipeline experience"],
     redFlags: ["90-day notice period may delay joining"],
-    recommendation: "Hire", shortlisted: true, interviewStage: "Technical Round 1",
+    recommendation: "Hire", shortlisted: true, stage: "Technical Round 1",
     recruiterNotes: "Great search expertise. Azure-to-AWS transition needed.",
     avatar: "SR", color: T.purple,
   },
@@ -112,7 +112,7 @@ const generateCandidates = () => [
     strengths: ["Solid React/Node foundation", "Payment domain experience"],
     gaps: ["No cloud platform experience", "Missing many preferred skills", "No certifications", "Limited system design exposure"],
     redFlags: ["Mostly worked on maintenance tasks", "No leadership experience"],
-    recommendation: "Maybe", shortlisted: false, interviewStage: "Screening",
+    recommendation: "Maybe", shortlisted: false, stage: "Screening",
     recruiterNotes: "Decent foundation but significant skill gaps for senior role.",
     avatar: "VS", color: T.warning,
   },
@@ -130,7 +130,7 @@ const generateCandidates = () => [
     strengths: ["Full-stack + leadership + business acumen", "Google experience", "Startup founder perspective", "Strong communication"],
     gaps: ["No Redis/Elasticsearch hands-on", "MBA may indicate shift to management"],
     redFlags: [],
-    recommendation: "Strong Hire", shortlisted: true, interviewStage: "Final Round",
+    recommendation: "Strong Hire", shortlisted: true, stage: "Final Round",
     recruiterNotes: "Exceptional profile. Leadership + technical depth. Fast-track.",
     avatar: "AI", color: T.cyan,
   },
@@ -149,7 +149,7 @@ const generateCandidates = () => [
     strengths: ["Basic React/Node skills", "Willing to learn"],
     gaps: ["Missing most mandatory skills", "Below experience threshold", "No cloud/DevOps", "Service company background only"],
     redFlags: ["Significantly under-qualified", "No TypeScript", "No cloud experience", "No system design exposure"],
-    recommendation: "Reject", shortlisted: false, interviewStage: "Rejected",
+    recommendation: "Reject", shortlisted: false, stage: "Rejected",
     recruiterNotes: "Does not meet minimum requirements for senior role.",
     avatar: "RV", color: T.danger,
   },
@@ -167,7 +167,7 @@ const generateCandidates = () => [
     strengths: ["Atlassian product experience", "Strong engineering culture background", "Good communication", "Plugin/extensibility expertise"],
     gaps: ["No Kubernetes hands-on", "Limited Python", "No GraphQL"],
     redFlags: [],
-    recommendation: "Hire", shortlisted: true, interviewStage: "Technical Round 1",
+    recommendation: "Hire", shortlisted: true, stage: "Technical Round 1",
     recruiterNotes: "Solid profile. Atlassian experience is a plus.",
     avatar: "KN", color: T.accent,
   },
@@ -185,46 +185,17 @@ const generateCandidates = () => [
     strengths: ["Good full-stack skills", "Consumer tech experience", "Immediate joiner"],
     gaps: ["No AWS (limited cloud)", "Missing DevOps skills", "No certifications"],
     redFlags: ["Large CTC jump expected (40%)"],
-    recommendation: "Maybe", shortlisted: false, interviewStage: "Screening",
+    recommendation: "Maybe", shortlisted: false, stage: "Screening",
     recruiterNotes: "Decent but missing cloud. Immediate availability is a plus.",
     avatar: "RG", color: T.orange,
   },
 ];
 
 const INTERVIEW_STAGES = ["Applied", "Screening", "Technical Round 1", "Technical Round 2", "HR Round", "Final Round", "Offer", "Rejected"];
-const FUNNEL_DATA = [
-  { stage: "Applied", count: 248, color: T.textMuted },
-  { stage: "Screened", count: 142, color: T.accent },
-  { stage: "Phone Screen", count: 68, color: T.purple },
-  { stage: "Technical", count: 34, color: T.cyan },
-  { stage: "On-site", count: 18, color: T.warning },
-  { stage: "Offer", count: 8, color: T.success },
-  { stage: "Hired", count: 5, color: T.success },
-];
-
 const HIRING_TRENDS = [
-  { month: "Oct", applications: 180, shortlisted: 42, hired: 3 },
-  { month: "Nov", applications: 210, shortlisted: 55, hired: 4 },
-  { month: "Dec", applications: 165, shortlisted: 38, hired: 2 },
   { month: "Jan", applications: 248, shortlisted: 62, hired: 5 },
   { month: "Feb", applications: 290, shortlisted: 78, hired: 6 },
   { month: "Mar", applications: 320, shortlisted: 85, hired: 7 },
-];
-
-const SKILL_HEATMAP_DATA = [
-  { skill: "React", candidates: 7, avgScore: 88 },
-  { skill: "Node.js", candidates: 7, avgScore: 85 },
-  { skill: "TypeScript", candidates: 6, avgScore: 82 },
-  { skill: "AWS", candidates: 4, avgScore: 78 },
-  { skill: "Docker", candidates: 6, avgScore: 80 },
-  { skill: "PostgreSQL", candidates: 5, avgScore: 76 },
-  { skill: "Kubernetes", candidates: 2, avgScore: 72 },
-  { skill: "GraphQL", candidates: 3, avgScore: 70 },
-  { skill: "Python", candidates: 3, avgScore: 74 },
-  { skill: "Redis", candidates: 3, avgScore: 71 },
-  { skill: "Elasticsearch", candidates: 1, avgScore: 85 },
-  { skill: "Terraform", candidates: 2, avgScore: 68 },
-  { skill: "CI/CD", candidates: 3, avgScore: 75 },
 ];
 
 // ─── UTILITY COMPONENTS ───────────────────────────────────────
@@ -459,15 +430,15 @@ Give a concise 150-word executive assessment covering: fit rating (1-10), key st
 };
 
 // ─── CANDIDATE DETAIL PANEL ───────────────────────────────────
-const CandidateDetail = ({ candidate, jd, onClose, onShortlist }) => {
+const CandidateDetail = ({ candidate, jd, onClose, onShortlist, onStageChange }) => {
   const [showAI, setShowAI] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const c = candidate;
   const radarData = [
-    { metric: "Skills", value: c.skillScore, fullMark: 100 },
-    { metric: "Experience", value: c.expScore, fullMark: 100 },
-    { metric: "Education", value: c.eduScore, fullMark: 100 },
-    { metric: "Keywords", value: c.keywordScore, fullMark: 100 },
+    { metric: "Skills", value: c.skillScore || 70, fullMark: 100 },
+    { metric: "Experience", value: c.expScore || 65, fullMark: 100 },
+    { metric: "Education", value: c.eduScore || 80, fullMark: 100 },
+    { metric: "Keywords", value: c.keywordScore || 75, fullMark: 100 },
     { metric: "Overall", value: c.overallScore, fullMark: 100 },
   ];
 
@@ -489,8 +460,11 @@ const CandidateDetail = ({ candidate, jd, onClose, onShortlist }) => {
               <ChevronLeft size={16} /> Back
             </button>
             <div style={{ display: "flex", gap: 8 }}>
+              <select value={c.stage} onChange={e => onStageChange(c.id, e.target.value)} style={{ padding: "6px 12px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text, fontSize: 12, outline: "none" }}>
+                {INTERVIEW_STAGES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
               <Btn size="sm" variant="ghost" icon={Zap} onClick={() => setShowAI(true)}>AI Analysis</Btn>
-              <Btn size="sm" variant={c.shortlisted ? "success" : "secondary"} icon={c.shortlisted ? CheckCircle : Plus}
+              <Btn size="sm" variant={c.shortlisted ? "success" : "secondary"} icon={c.shortlisted ? Star : Star}
                 onClick={() => onShortlist(c.id)}>{c.shortlisted ? "Shortlisted" : "Shortlist"}</Btn>
             </div>
           </div>
@@ -502,17 +476,15 @@ const CandidateDetail = ({ candidate, jd, onClose, onShortlist }) => {
                 <span style={{ display: "flex", alignItems: "center", gap: 4 }}><MapPin size={12} />{c.location}</span>
                 <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Briefcase size={12} />{c.experience}y exp</span>
                 <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Clock size={12} />{c.noticePeriod}</span>
-                <span style={{ display: "flex", alignItems: "center", gap: 4 }}><DollarSign size={12} />{c.expectedCTC}</span>
               </div>
             </div>
             <ScoreRing score={c.overallScore} size={64} label="Match" />
           </div>
           <div style={{ display: "flex", gap: 6, marginTop: 12, flexWrap: "wrap" }}>
             <Badge variant={c.recommendation === "Strong Hire" ? "success" : c.recommendation === "Hire" ? "default" : c.recommendation === "Maybe" ? "warning" : "danger"}>
-              {c.recommendation}
+              {c.recommendation || "Pending"}
             </Badge>
-            <Badge variant="outline">{c.interviewStage}</Badge>
-            <Badge variant="purple">{c.education.split(",")[0]}</Badge>
+            <Badge variant="outline">{c.stage}</Badge>
           </div>
         </div>
 
@@ -522,57 +494,28 @@ const CandidateDetail = ({ candidate, jd, onClose, onShortlist }) => {
               { id: "overview", label: "Overview" },
               { id: "scoring", label: "Scoring" },
               { id: "experience", label: "Experience" },
-              { id: "assessment", label: "Assessment" },
             ]} active={activeTab} onChange={setActiveTab} />
           </div>
 
           {activeTab === "overview" && (
             <>
-              {/* Contact */}
-              <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}`, marginBottom: 16 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: T.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Contact</div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, fontSize: 13 }}>
-                  <span style={{ color: T.textMuted, display: "flex", alignItems: "center", gap: 6 }}><Mail size={13} />{c.email}</span>
-                  <span style={{ color: T.textMuted, display: "flex", alignItems: "center", gap: 6 }}><Phone size={13} />{c.phone}</span>
-                </div>
-              </div>
-
               {/* Skills */}
               <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}`, marginBottom: 16 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: T.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Skills</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                  {c.skills.map(s => (
+                  {c.skills?.map(s => (
                     <Badge key={s} variant={jd.mandatorySkills.includes(s) ? "success" : jd.preferredSkills.includes(s) ? "cyan" : "outline"} size="sm">{s}</Badge>
                   ))}
                 </div>
-                {c.missingMandatory.length > 0 && (
-                  <div style={{ marginTop: 12 }}>
-                    <div style={{ fontSize: 11, color: T.danger, fontWeight: 600, marginBottom: 6 }}>Missing Mandatory</div>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                      {c.missingMandatory.map(s => <Badge key={s} variant="danger" size="xs">{s}</Badge>)}
-                    </div>
-                  </div>
-                )}
               </div>
 
-              {/* Companies */}
+              {/* Work History */}
               <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}`, marginBottom: 16 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: T.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Work History</div>
-                {c.companies.map((comp, i) => (
+                {c.companies?.map((comp, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 0", borderBottom: i < c.companies.length - 1 ? `1px solid ${T.border}` : "none" }}>
                     <div style={{ width: 8, height: 8, borderRadius: "50%", background: i === 0 ? T.success : T.accent }} />
                     <span style={{ fontSize: 13, color: T.text }}>{comp}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Projects */}
-              <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: T.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Key Projects</div>
-                {c.projects.map((p, i) => (
-                  <div key={i} style={{ fontSize: 13, color: T.text, padding: "6px 0", display: "flex", gap: 8 }}>
-                    <ChevronRight size={14} color={T.accent} style={{ marginTop: 2, flexShrink: 0 }} />
-                    <span>{p}</span>
                   </div>
                 ))}
               </div>
@@ -584,10 +527,9 @@ const CandidateDetail = ({ candidate, jd, onClose, onShortlist }) => {
               <div style={{ background: T.bgCard, borderRadius: 10, padding: 20, border: `1px solid ${T.border}`, marginBottom: 16 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: T.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 16 }}>Match Breakdown</div>
                 <div style={{ display: "flex", justifyContent: "space-around", flexWrap: "wrap", gap: 16 }}>
-                  <ScoreRing score={c.skillScore} size={64} label="Skills" />
-                  <ScoreRing score={c.expScore} size={64} label="Experience" />
-                  <ScoreRing score={c.eduScore} size={64} label="Education" />
-                  <ScoreRing score={c.keywordScore} size={64} label="Keywords" />
+                  <ScoreRing score={c.skillScore || 70} size={64} label="Skills" />
+                  <ScoreRing score={c.expScore || 65} size={64} label="Experience" />
+                  <ScoreRing score={c.eduScore || 80} size={64} label="Education" />
                 </div>
               </div>
               <div style={{ background: T.bgCard, borderRadius: 10, padding: 20, border: `1px solid ${T.border}`, marginBottom: 16 }}>
@@ -601,106 +543,17 @@ const CandidateDetail = ({ candidate, jd, onClose, onShortlist }) => {
                   </RadarChart>
                 </ResponsiveContainer>
               </div>
-              <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: T.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Scoring Logic</div>
-                <div style={{ fontSize: 12, color: T.textMuted, lineHeight: 1.8 }}>
-                  <div style={{ marginBottom: 8 }}>
-                    <strong style={{ color: T.text }}>Skill Match ({c.skillScore}%)</strong>: {c.skills.filter(s => jd.mandatorySkills.includes(s)).length}/{jd.mandatorySkills.length} mandatory skills matched. {c.skills.filter(s => jd.preferredSkills.includes(s)).length}/{jd.preferredSkills.length} preferred skills matched.
-                  </div>
-                  <div style={{ marginBottom: 8 }}>
-                    <strong style={{ color: T.text }}>Experience ({c.expScore}%)</strong>: {c.experience}y actual vs {jd.experience} required. {c.experience >= 5 ? "Meets" : "Below"} minimum threshold.
-                  </div>
-                  <div style={{ marginBottom: 8 }}>
-                    <strong style={{ color: T.text }}>Education ({c.eduScore}%)</strong>: {c.education}. {c.certifications.length > 0 ? `Certifications: ${c.certifications.join(", ")}` : "No relevant certifications."}
-                  </div>
-                  <div>
-                    <strong style={{ color: T.text }}>Keywords ({c.keywordScore}%)</strong>: Resume-JD keyword overlap analysis factoring TF-IDF weighting and semantic similarity.
-                  </div>
-                </div>
-              </div>
             </>
           )}
 
           {activeTab === "experience" && (
-            <>
-              <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}`, marginBottom: 16 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: T.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Career Timeline</div>
-                {c.companies.map((comp, i) => (
-                  <div key={i} style={{ display: "flex", gap: 12, padding: "12px 0", borderBottom: i < c.companies.length - 1 ? `1px solid ${T.border}` : "none" }}>
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                      <div style={{ width: 12, height: 12, borderRadius: "50%", background: i === 0 ? T.success : T.accent, border: `2px solid ${T.bg}` }} />
-                      {i < c.companies.length - 1 && <div style={{ width: 2, flex: 1, background: T.border, marginTop: 4 }} />}
-                    </div>
-                    <div>
-                      <div style={{ fontWeight: 600, color: T.text, fontSize: 14 }}>{comp}</div>
-                      <div style={{ fontSize: 12, color: T.textMuted, marginTop: 2 }}>{i === 0 ? "Current" : "Previous"}</div>
-                    </div>
-                  </div>
-                ))}
+            <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}`, marginBottom: 16 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: T.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Education</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <GraduationCap size={18} color={T.purple} />
+                <span style={{ fontSize: 14, color: T.text }}>{c.education}</span>
               </div>
-              <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}`, marginBottom: 16 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: T.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Education</div>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <GraduationCap size={18} color={T.purple} />
-                  <span style={{ fontSize: 14, color: T.text }}>{c.education}</span>
-                </div>
-              </div>
-              {c.certifications.length > 0 && (
-                <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}`, marginBottom: 16 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: T.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Certifications</div>
-                  {c.certifications.map((cert, i) => (
-                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0" }}>
-                      <Award size={14} color={T.warning} />
-                      <span style={{ fontSize: 13, color: T.text }}>{cert}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-              <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: T.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Achievements</div>
-                {c.achievements.map((a, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0" }}>
-                    <Star size={14} color={T.warning} />
-                    <span style={{ fontSize: 13, color: T.text }}>{a}</span>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-
-          {activeTab === "assessment" && (
-            <>
-              <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}`, marginBottom: 16 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: T.success, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Strengths</div>
-                {c.strengths.map((s, i) => (
-                  <div key={i} style={{ display: "flex", gap: 8, padding: "6px 0", fontSize: 13, color: T.text }}>
-                    <CheckCircle size={14} color={T.success} style={{ marginTop: 2, flexShrink: 0 }} />{s}
-                  </div>
-                ))}
-              </div>
-              <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}`, marginBottom: 16 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: T.warning, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Gaps</div>
-                {c.gaps.map((g, i) => (
-                  <div key={i} style={{ display: "flex", gap: 8, padding: "6px 0", fontSize: 13, color: T.text }}>
-                    <AlertTriangle size={14} color={T.warning} style={{ marginTop: 2, flexShrink: 0 }} />{g}
-                  </div>
-                ))}
-              </div>
-              {c.redFlags.length > 0 && (
-                <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}`, marginBottom: 16 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: T.danger, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Red Flags</div>
-                  {c.redFlags.map((r, i) => (
-                    <div key={i} style={{ display: "flex", gap: 8, padding: "6px 0", fontSize: 13, color: T.text }}>
-                      <XCircle size={14} color={T.danger} style={{ marginTop: 2, flexShrink: 0 }} />{r}
-                    </div>
-                  ))}
-                </div>
-              )}
-              <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: T.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Recruiter Notes</div>
-                <div style={{ fontSize: 13, color: T.text, lineHeight: 1.6, padding: 12, background: T.bgSurface, borderRadius: 8 }}>{c.recruiterNotes}</div>
-              </div>
-            </>
+            </div>
           )}
         </div>
       </div>
@@ -790,27 +643,53 @@ const ComparisonView = ({ candidates, jd }) => {
 };
 
 // ─── SKILL HEATMAP ────────────────────────────────────────────
-const SkillHeatmap = () => (
-  <div style={{ background: T.bgCard, borderRadius: 12, padding: 20, border: `1px solid ${T.border}` }}>
-    <div style={{ fontSize: 14, fontWeight: 700, color: T.text, marginBottom: 16 }}>Skill Coverage Heatmap</div>
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 8 }}>
-      {SKILL_HEATMAP_DATA.map(s => {
-        const intensity = s.avgScore / 100;
-        const bg = s.avgScore >= 80 ? `rgba(16,185,129,${intensity * 0.4})` : s.avgScore >= 65 ? `rgba(245,158,11,${intensity * 0.4})` : `rgba(239,68,68,${intensity * 0.4})`;
-        return (
-          <div key={s.skill} style={{
-            padding: "12px 10px", borderRadius: 8, background: bg, border: `1px solid ${T.border}`,
-            textAlign: "center", transition: "transform 0.2s", cursor: "default",
-          }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: T.text }}>{s.skill}</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: T.text, fontFamily: "'JetBrains Mono', monospace", margin: "4px 0" }}>{s.candidates}</div>
-            <div style={{ fontSize: 10, color: T.textMuted }}>avg {s.avgScore}%</div>
-          </div>
-        );
-      })}
+const SkillHeatmap = ({ candidates }) => {
+  const dynamicHeatmap = useMemo(() => {
+    const map = {};
+    candidates.forEach(c => {
+      if (!c.skills) return;
+      c.skills.forEach(s => {
+        if (!map[s]) map[s] = { skill: s, candidates: 0, totalScore: 0 };
+        map[s].candidates += 1;
+        map[s].totalScore += c.overallScore || 0;
+      });
+    });
+    return Object.values(map)
+      .map(s => ({ ...s, avgScore: Math.round(s.totalScore / s.candidates) }))
+      .sort((a, b) => b.candidates - a.candidates)
+      .slice(0, 12);
+  }, [candidates]);
+
+  if (dynamicHeatmap.length === 0) {
+    return (
+      <div style={{ background: T.bgCard, borderRadius: 12, padding: 40, border: `1px solid ${T.border}`, textAlign: "center", color: T.textMuted }}>
+        No Skill Data Available
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ background: T.bgCard, borderRadius: 12, padding: 20, border: `1px solid ${T.border}` }}>
+      <div style={{ fontSize: 14, fontWeight: 700, color: T.text, marginBottom: 16 }}>Skill Coverage Heatmap</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 8 }}>
+        {dynamicHeatmap.map(s => {
+          const intensity = s.avgScore / 100;
+          const bg = s.avgScore >= 80 ? `rgba(16,185,129,${intensity * 0.4})` : s.avgScore >= 65 ? `rgba(245,158,11,${intensity * 0.4})` : `rgba(239,68,68,${intensity * 0.4})`;
+          return (
+            <div key={s.skill} style={{
+              padding: "12px 10px", borderRadius: 8, background: bg, border: `1px solid ${T.border}`,
+              textAlign: "center", transition: "transform 0.2s", cursor: "default",
+            }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: T.text }}>{s.skill}</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: T.text, fontFamily: "'JetBrains Mono', monospace", margin: "4px 0" }}>{s.candidates}</div>
+              <div style={{ fontSize: 10, color: T.textMuted }}>avg {s.avgScore}%</div>
+            </div>
+          );
+        })}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // ─── JD PANEL ─────────────────────────────────────────────────
 const JDPanel = ({ jd, onUpdate }) => {
@@ -1015,6 +894,12 @@ export default function HRDashboard() {
     saveToCloud(next, jd);
   };
 
+  const updateCandidateStage = (id, stage) => {
+    const next = candidates.map(c => c.id === id ? { ...c, stage } : c);
+    setCandidates(next);
+    saveToCloud(next, jd);
+  };
+
   const clearAllData = () => {
     if (!window.confirm("Are you sure? This will clear all candidates!")) return;
     setCandidates([]);
@@ -1047,9 +932,23 @@ export default function HRDashboard() {
     total: candidates.length,
     shortlisted: candidates.filter(c => c.shortlisted).length,
     rejected: candidates.filter(c => c.recommendation === "Reject").length,
-    avgScore: Math.round(candidates.reduce((s, c) => s + c.overallScore, 0) / candidates.length),
+    avgScore: candidates.length ? Math.round(candidates.reduce((a, b) => a + b.overallScore, 0) / candidates.length) : 0,
     strongHires: candidates.filter(c => c.recommendation === "Strong Hire").length,
   }), [candidates]);
+
+  const dynamicFunnel = useMemo(() => {
+    const counts = {};
+    INTERVIEW_STAGES.forEach(s => counts[s] = 0);
+    candidates.forEach(c => {
+      if (counts[c.stage] !== undefined) counts[c.stage] += 1;
+      else counts["Applied"] += 1;
+    });
+    return INTERVIEW_STAGES.map((s, i) => ({
+      stage: s,
+      count: counts[s],
+      color: i === 0 ? T.textMuted : i < 4 ? T.accent : i < 6 ? T.purple : T.success
+    })).filter(f => f.count > 0 || candidates.length === 0);
+  }, [candidates]);
 
   const DIVERSITY_DATA = [
     { name: "Female", value: candidates.filter(c => c.gender === "Female").length },
@@ -1144,24 +1043,21 @@ export default function HRDashboard() {
             <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 24, marginBottom: 24 }}>
               {/* Hiring Funnel */}
               <div style={{ background: T.bgCard, borderRadius: 12, padding: 20, border: `1px solid ${T.border}` }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: T.text, marginBottom: 16 }}>Hiring Funnel</div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {FUNNEL_DATA.map((f, i) => (
-                    <div key={f.stage} style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <div style={{ width: 90, fontSize: 12, color: T.textMuted, fontWeight: 500, textAlign: "right" }}>{f.stage}</div>
-                      <div style={{ flex: 1, position: "relative" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", marginBottom: 20 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: T.text }}>Active Hiring Funnel</div>
+                  {candidates.length === 0 && <span style={{ fontSize: 11, color: T.danger }}>No Candidates Loaded</span>}
+                </div>
+                <div style={{ display: "grid", gap: 10 }}>
+                  {dynamicFunnel.map((f, i) => (
+                    <div key={f.stage} style={{ display: "grid", gridTemplateColumns: "80px 1fr 40px", alignItems: "center", gap: 12 }}>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: T.textMuted }}>{f.stage}</div>
+                      <div style={{ height: 8, background: T.bgSurface, borderRadius: 4, overflow: "hidden", position: "relative" }}>
                         <div style={{
-                          height: 28, borderRadius: 6, background: `${f.color}20`,
-                          width: `${(f.count / FUNNEL_DATA[0].count) * 100}%`, minWidth: 40,
-                          display: "flex", alignItems: "center", paddingLeft: 10,
-                          transition: "width 0.8s ease",
-                        }}>
-                          <span style={{ fontSize: 12, fontWeight: 700, color: f.color, fontFamily: "'JetBrains Mono', monospace" }}>{f.count}</span>
-                        </div>
+                          position: "absolute", left: 0, top: 0, height: "100%", borderRadius: 4,
+                          background: f.color, width: candidates.length ? `${(f.count / candidates.length) * 100}%` : "0%", transition: "width 0.3s"
+                        }} />
                       </div>
-                      <div style={{ fontSize: 11, color: T.textDim, width: 40, textAlign: "right" }}>
-                        {i > 0 ? `${Math.round((f.count / FUNNEL_DATA[i - 1].count) * 100)}%` : "100%"}
-                      </div>
+                      <div style={{ fontSize: 11, color: T.text, fontWeight: 700, textAlign: "right" }}>{f.count}</div>
                     </div>
                   ))}
                 </div>
@@ -1187,22 +1083,9 @@ export default function HRDashboard() {
               </div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginBottom: 24 }}>
-              {/* Hiring Trends */}
-              <div style={{ background: T.bgCard, borderRadius: 12, padding: 20, border: `1px solid ${T.border}` }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: T.text, marginBottom: 16 }}>Hiring Trends</div>
-                <ResponsiveContainer width="100%" height={200}>
-                  <AreaChart data={HIRING_TRENDS}>
-                    <CartesianGrid strokeDasharray="3 3" stroke={T.border} />
-                    <XAxis dataKey="month" tick={{ fill: T.textMuted, fontSize: 11 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fill: T.textMuted, fontSize: 11 }} axisLine={false} tickLine={false} />
-                    <Tooltip contentStyle={{ background: T.bgCard, border: `1px solid ${T.border}`, borderRadius: 8, fontSize: 12 }} />
-                    <Area type="monotone" dataKey="applications" stroke={T.accent} fill={T.accentGlow} strokeWidth={2} />
-                    <Area type="monotone" dataKey="shortlisted" stroke={T.success} fill={T.successBg} strokeWidth={2} />
-                    <Area type="monotone" dataKey="hired" stroke={T.purple} fill={T.purpleBg} strokeWidth={2} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
+            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 24, marginBottom: 24 }}>
+              {/* Main Charts & Skills */}
+              <SkillHeatmap candidates={candidates} />
 
               {/* Diversity */}
               <div style={{ background: T.bgCard, borderRadius: 12, padding: 20, border: `1px solid ${T.border}` }}>
@@ -1225,14 +1108,12 @@ export default function HRDashboard() {
                       </div>
                     ))}
                     <div style={{ fontSize: 12, color: T.textMuted, marginTop: 8 }}>
-                      {Math.round((DIVERSITY_DATA[0].value / candidates.length) * 100)}% female representation
+                      {candidates.length ? Math.round((DIVERSITY_DATA[0].value / candidates.length) * 100) : 0}% female representation
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-
-            <SkillHeatmap />
           </>
         )}
 
@@ -1301,7 +1182,7 @@ export default function HRDashboard() {
                   <div style={{ fontSize: 12, color: T.textMuted }}>{c.noticePeriod}</div>
                   <div style={{ display: "flex", gap: 4 }}>
                     <Badge variant={c.recommendation === "Strong Hire" ? "success" : c.recommendation === "Hire" ? "default" : c.recommendation === "Maybe" ? "warning" : "danger"} size="xs">
-                      {c.recommendation}
+                      {c.stage}
                     </Badge>
                   </div>
                   <div style={{ display: "flex", gap: 10 }} onClick={e => e.stopPropagation()}>
@@ -1404,7 +1285,7 @@ export default function HRDashboard() {
               </div>
             </div>
 
-            <SkillHeatmap />
+            <SkillHeatmap candidates={candidates} />
           </>
         )}
       </main>
@@ -1415,6 +1296,7 @@ export default function HRDashboard() {
           candidate={selectedCandidate} jd={jd}
           onClose={() => setSelectedCandidate(null)}
           onShortlist={toggleShortlist}
+          onStageChange={updateCandidateStage}
         />
       )}
 
@@ -1428,38 +1310,16 @@ export default function HRDashboard() {
               <input id="new-exp" type="number" placeholder="Experience (years)" style={{ width: "100%", padding: "12px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text }} />
               <input id="new-loc" placeholder="Location" style={{ width: "100%", padding: "12px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text }} />
               <input id="new-skills" placeholder="Skills (comma separated)" style={{ width: "100%", padding: "12px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text }} />
-              <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
-                <Btn variant="ghost" s={{ flex: 1 }} onClick={() => setIsAdding(false)}>Cancel</Btn>
-                <Btn s={{ flex: 1 }} onClick={() => {
-                  const name = document.getElementById("new-name").value;
-                  const exp = parseFloat(document.getElementById("new-exp").value);
-                  const loc = document.getElementById("new-loc").value;
-                  const skills = document.getElementById("new-skills").value.split(",").map(s => s.trim());
-
-                  if (!name) return alert("Name is required");
-
-                  addCandidate({
-                    id: "C" + Date.now(),
-                    name,
-                    location: loc,
-                    experience: exp,
-                    skills,
-                    education: "B.Tech",
-                    companies: ["New Company"],
-                    overallScore: Math.floor(Math.random() * 40) + 60,
-                    recommendation: "Maybe",
-                    shortlisted: false,
-                    avatar: name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2),
-                    color: T.accent,
-                    noticePeriod: "30 days"
+              noticePeriod: "30 days"
                   });
-                  setIsAdding(false);
+              setIsAdding(false);
                 }}>Add Candidate</Btn>
-              </div>
-            </div>
           </div>
         </div>
-      )}
-    </div>
+          </div>
+        </div >
+      )
+}
+    </div >
   );
 }
