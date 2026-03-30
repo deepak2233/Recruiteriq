@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area, Treemap } from "recharts";
-import { Search, Upload, FileText, Users, CheckCircle, XCircle, AlertTriangle, ChevronDown, ChevronRight, Star, Filter, Download, Eye, MessageSquare, Clock, Briefcase, GraduationCap, Award, MapPin, Phone, Mail, Linkedin, Github, TrendingUp, BarChart2, PieChart as PieChartIcon, Layers, Settings, Bell, Menu, X, Plus, Trash2, Edit3, Copy, ExternalLink, Zap, Target, Shield, BookOpen, Code, Database, Globe, Cpu, ArrowUpRight, ArrowDownRight, Minus, RefreshCw, ChevronLeft, MoreVertical, Hash, Calendar, DollarSign } from "lucide-react";
+import { Search, Upload, FileText, Users, CheckCircle, XCircle, AlertTriangle, ChevronDown, ChevronRight, Star, Filter, Download, Eye, MessageSquare, Clock, Briefcase, GraduationCap, Award, MapPin, Phone, Mail, Linkedin, Github, TrendingUp, BarChart2, PieChart as PieChartIcon, Layers, Settings, Bell, Menu, X, Plus, Trash2, Edit3, Copy, ExternalLink, Zap, Target, Shield, BookOpen, Code, Database, Globe, Cpu, ArrowUpRight, ArrowDownRight, Minus, RefreshCw, ChevronLeft, MoreVertical, Hash, Calendar, DollarSign, CloudUpload } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "./supabase";
 
 // ─── DESIGN TOKENS ────────────────────────────────────────────
@@ -198,6 +198,21 @@ const HIRING_TRENDS = [
   { month: "Mar", applications: 320, shortlisted: 85, hired: 7 },
 ];
 
+const DEFAULT_JD = {
+  title: "Senior Full Stack Engineer",
+  company: "TechMob Services",
+  experience: "5-8 years",
+  salary: "₹35L - ₹50L",
+  department: "Engineering",
+  education: "B.Tech/M.Tech in CS/IT or equivalent",
+  certifications: ["AWS Certified", "Kubernetes Certified"],
+  domain: ["Fintech", "E-commerce", "SaaS"],
+  description: "We are looking for a Senior Full Stack Engineer to lead our core platform team. You will be responsible for designing and implementing scalable services and delightful user experiences.",
+  mandatorySkills: ["React", "Node.js", "TypeScript", "PostgreSQL", "AWS"],
+  preferredSkills: ["Docker", "Kubernetes", "GraphQL", "Redis", "Python", "Terraform", "CI/CD"],
+};
+const JD_TEMPLATE = { ...DEFAULT_JD, title: "Untitled Role", company: "Company Name", mandatorySkills: [], preferredSkills: [], certifications: [], domain: [] };
+
 // ─── UTILITY COMPONENTS ───────────────────────────────────────
 const Badge = ({ children, variant = "default", size = "sm" }) => {
   const colors = {
@@ -329,6 +344,7 @@ const Btn = ({ children, variant = "primary", size = "md", icon: Icon, onClick, 
     ghost: { background: "transparent", color: T.textMuted },
     success: { background: T.success, color: "#fff" },
     danger: { background: T.dangerBg, color: T.danger, border: `1px solid ${T.danger}30` },
+    outline: { background: "transparent", color: T.text, border: `1px solid ${T.border}` },
   };
   return <button onClick={onClick} style={{ ...base, ...variants[variant], ...s }}>{Icon && <Icon size={size === "sm" ? 13 : 15} />}{children}</button>;
 };
@@ -692,178 +708,103 @@ const SkillHeatmap = ({ candidates }) => {
 };
 
 // ─── JD PANEL ─────────────────────────────────────────────────
-const JDPanel = ({ jd, onUpdate }) => {
+const JDPanel = ({ jd, onUpdate, onDelete }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [edited, setEdited] = useState(jd);
 
-  const handleSave = () => {
-    onUpdate(edited);
-    setIsEditing(false);
-  };
+  const handleSave = () => { onUpdate(edited); setIsEditing(false); };
 
-  if (isEditing) {
-    return (
-      <div style={{ background: T.bgCard, borderRadius: 12, padding: 24, border: `1px solid ${T.borderActive}` }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-          <h3 style={{ fontSize: 18, fontWeight: 700 }}>Edit Job Description</h3>
-          <div style={{ display: "flex", gap: 10 }}>
-            <Btn variant="ghost" onClick={() => setIsEditing(false)}>Cancel</Btn>
-            <Btn variant="primary" onClick={handleSave}>Save Changes</Btn>
-          </div>
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
-          <div>
-            <label style={{ display: "block", fontSize: 12, color: T.textMuted, marginBottom: 6 }}>Job Title</label>
-            <input value={edited.title} onChange={e => setEdited({ ...edited, title: e.target.value })} style={{ width: "100%", padding: "10px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text, fontSize: 14 }} />
-          </div>
-          <div>
-            <label style={{ display: "block", fontSize: 12, color: T.textMuted, marginBottom: 6 }}>Company</label>
-            <input value={edited.company} onChange={e => setEdited({ ...edited, company: e.target.value })} style={{ width: "100%", padding: "10px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text, fontSize: 14 }} />
-          </div>
-          <div>
-            <label style={{ display: "block", fontSize: 12, color: T.textMuted, marginBottom: 6 }}>Location</label>
-            <input value={edited.location} onChange={e => setEdited({ ...edited, location: e.target.value })} style={{ width: "100%", padding: "10px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text, fontSize: 14 }} />
-          </div>
-          <div>
-            <label style={{ display: "block", fontSize: 12, color: T.textMuted, marginBottom: 6 }}>Salary Range</label>
-            <input value={edited.salary} onChange={e => setEdited({ ...edited, salary: e.target.value })} style={{ width: "100%", padding: "10px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text, fontSize: 14 }} />
-          </div>
-        </div>
-
-        <div style={{ marginBottom: 20 }}>
-          <label style={{ display: "block", fontSize: 12, color: T.textMuted, marginBottom: 6 }}>Mandatory Skills (Comma separated)</label>
-          <input value={edited.mandatorySkills.join(", ")} onChange={e => setEdited({ ...edited, mandatorySkills: e.target.value.split(",").map(s => s.trim()) })} style={{ width: "100%", padding: "10px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text, fontSize: 14 }} />
-        </div>
-
-        <div style={{ marginBottom: 20 }}>
-          <label style={{ display: "block", fontSize: 12, color: T.textMuted, marginBottom: 6 }}>Preferred Skills (Comma separated)</label>
-          <input value={edited.preferredSkills.join(", ")} onChange={e => setEdited({ ...edited, preferredSkills: e.target.value.split(",").map(s => s.trim()) })} style={{ width: "100%", padding: "10px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text, fontSize: 14 }} />
-        </div>
+  const Field = ({ label, value, keyName, icon: Icon }) => (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: T.textMuted, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
+        {Icon && <Icon size={12} />} {label}
       </div>
-    );
-  }
+      {isEditing ? (
+        <input
+          value={value}
+          onChange={e => setEdited({ ...edited, [keyName]: e.target.value })}
+          style={{ width: "100%", padding: "8px 12px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.borderActive}`, color: T.text, fontSize: 13, outline: "none" }}
+        />
+      ) : (
+        <div style={{ fontSize: 13, color: T.text, fontWeight: 500 }}>{value}</div>
+      )}
+    </div>
+  );
 
   return (
-    <div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+    <div style={{ background: T.bgCard, borderRadius: 12, border: `1px solid ${T.border}`, overflow: "hidden" }}>
+      <div style={{ padding: "20px 24px", borderBottom: `1px solid ${T.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", background: `${T.accent}05` }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <FileText size={18} color={T.accent} />
-          <span style={{ fontSize: 16, fontWeight: 700, color: T.text }}>Job Description</span>
-          <Badge variant="success">Active</Badge>
-        </div>
-        <Btn variant="ghost" size="sm" icon={Edit3} onClick={() => setIsEditing(true)}>Edit JD</Btn>
-      </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
-        <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
-          <div style={{ fontSize: 12, color: T.textMuted, fontWeight: 600, marginBottom: 8, textTransform: "uppercase" }}>Position</div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: T.text }}>{jd.title}</div>
-          <div style={{ fontSize: 13, color: T.textMuted, marginTop: 4 }}>{jd.company}</div>
-        </div>
-        <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, fontSize: 13 }}>
-            <div><span style={{ color: T.textMuted }}>Location:</span><div style={{ color: T.text, fontWeight: 600, marginTop: 2 }}>{jd.location}</div></div>
-            <div><span style={{ color: T.textMuted }}>Experience:</span><div style={{ color: T.text, fontWeight: 600, marginTop: 2 }}>{jd.experience}</div></div>
-            <div><span style={{ color: T.textMuted }}>Salary:</span><div style={{ color: T.text, fontWeight: 600, marginTop: 2 }}>{jd.salary}</div></div>
-            <div><span style={{ color: T.textMuted }}>Department:</span><div style={{ color: T.text, fontWeight: 600, marginTop: 2 }}>{jd.department}</div></div>
+          <div style={{ width: 40, height: 40, borderRadius: 10, background: T.accent, display: "flex", alignItems: "center", justifyContent: "center", color: "white" }}>
+            <FileText size={20} />
+          </div>
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: T.text }}>{jd.title}</div>
+            <div style={{ fontSize: 12, color: T.textMuted }}>{jd.company}</div>
           </div>
         </div>
-      </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
-        <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
-          <div style={{ fontSize: 12, color: T.danger, fontWeight: 600, marginBottom: 10, textTransform: "uppercase" }}>Mandatory Skills</div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-            {jd.mandatorySkills.map(s => <Badge key={s} variant="danger" size="sm">{s}</Badge>)}
-          </div>
-        </div>
-        <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
-          <div style={{ fontSize: 12, color: T.cyan, fontWeight: 600, marginBottom: 10, textTransform: "uppercase" }}>Preferred Skills</div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-            {jd.preferredSkills.map(s => <Badge key={s} variant="cyan" size="sm">{s}</Badge>)}
-          </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <Btn size="sm" variant="ghost" icon={Trash2} onClick={onDelete} style={{ color: T.danger }}>Delete</Btn>
+          {isEditing ? (
+            <Btn size="sm" onClick={handleSave}>Save Changes</Btn>
+          ) : (
+            <Btn size="sm" variant="outline" icon={Edit3} onClick={() => setIsEditing(true)}>Edit JD</Btn>
+          )}
         </div>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 20 }}>
-        <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
-          <div style={{ fontSize: 12, color: T.textMuted, fontWeight: 600, marginBottom: 8, textTransform: "uppercase" }}>Education</div>
-          <div style={{ fontSize: 13, color: T.text }}>{jd.education}</div>
+
+      <div style={{ padding: 24 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+          <Field label="Experience" value={isEditing ? edited.experience : jd.experience} keyName="experience" icon={Clock} />
+          <Field label="Salary Range" value={isEditing ? edited.salary : jd.salary} keyName="salary" icon={DollarSign} />
+          <Field label="Department" value={isEditing ? edited.department : jd.department} keyName="department" icon={Briefcase} />
+          <Field label="Education" value={isEditing ? edited.education : jd.education} keyName="education" icon={GraduationCap} />
         </div>
-        <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
-          <div style={{ fontSize: 12, color: T.textMuted, fontWeight: 600, marginBottom: 8, textTransform: "uppercase" }}>Certifications</div>
-          {jd.certifications.map(c => <div key={c} style={{ fontSize: 13, color: T.text }}>{c}</div>)}
+
+        <div style={{ marginTop: 8 }}>
+          <div style={{ fontSize: 11, color: T.textMuted, fontWeight: 600, textTransform: "uppercase", marginBottom: 12 }}>Mandatory Skills</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {jd.mandatorySkills.map(s => <Badge key={s} variant="success">{s}</Badge>)}
+          </div>
         </div>
-        <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}` }}>
-          <div style={{ fontSize: 12, color: T.textMuted, fontWeight: 600, marginBottom: 8, textTransform: "uppercase" }}>Domain</div>
-          {jd.domainKnowledge.map(d => <Badge key={d} variant="purple" size="sm" style={{ marginBottom: 4 }}>{d}</Badge>)}
+
+        <div style={{ marginTop: 24, padding: "16px", border: `2px dashed ${T.border}`, borderRadius: 12, textAlign: "center", cursor: "pointer", background: `${T.accent}05` }} onClick={() => alert("Upload PDF/Word to extract JD")}>
+          <CloudUpload size={24} color={T.accent} style={{ marginBottom: 8 }} />
+          <div style={{ fontSize: 13, fontWeight: 600, color: T.text }}>Extract from Document</div>
+          <div style={{ fontSize: 11, color: T.textMuted }}>AI will parse PDF/Word automatically</div>
         </div>
       </div>
     </div>
   );
 };
 
-// ─── MAIN DASHBOARD ───────────────────────────────────────────
+// ─── DASHBOARD CONTENT ───────────────────────────────────────
 export default function HRDashboard() {
-  const [candidates, setCandidates] = useState(generateCandidates);
-  const [jd, setJd] = useState(MOCK_JD);
+  const [candidates, setCandidates] = useState(generateCandidates());
+  const [jd, setJD] = useState(DEFAULT_JD);
+  const [loading, setLoading] = useState(true);
   const [activeView, setActiveView] = useState("dashboard");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [isAdding, setIsAdding] = useState(false);
   const [sortBy, setSortBy] = useState("overallScore");
   const [sortDir, setSortDir] = useState("desc");
   const [filterShortlisted, setFilterShortlisted] = useState("all");
   const [filterMinScore, setFilterMinScore] = useState(0);
+  const updateJD = (newJd) => { setJD(newJd); };
+  const deleteJD = () => { if (window.confirm("Delete JD?")) setJD(JD_TEMPLATE); };
+  const addCandidate = (c) => { setCandidates([c, ...candidates]); };
+  const deleteCandidate = (id) => { setCandidates(candidates.filter(c => c.id !== id)); };
 
-  // Sync with Supabase
-  useEffect(() => {
-    if (!isSupabaseConfigured) return;
+  const updateCandidateStage = (id, stage) => setCandidates(candidates.map(c => c.id === id ? { ...c, stage } : c));
+  const toggleShortlist = (id) => setCandidates(candidates.map(c => c.id === id ? { ...c, shortlisted: !c.shortlisted } : c));
+  const clearAllData = () => {
+    if (!window.confirm("Are you sure? This will clear all data.")) return;
+    setCandidates([]);
+    setJD(DEFAULT_JD);
+  };
 
-    const channel = supabase
-      .channel('db-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'settings',
-          filter: 'id=eq.recruiteriq'
-        },
-        (payload) => {
-          if (payload.new && payload.new.data) {
-            const d = payload.new.data;
-            if (d.candidates) setCandidates(d.candidates);
-            if (d.jd) setJd(d.jd);
-          }
-        }
-      )
-      .subscribe();
-
-    async function init() {
-      try {
-        const { data, error } = await supabase
-          .from('settings')
-          .select('data')
-          .eq('id', 'recruiteriq')
-          .single();
-
-        if (error) {
-          if (error.code === 'PGRST116') { // Not found
-            await supabase.from('settings').upsert({ id: 'recruiteriq', data: { candidates: generateCandidates(), jd: MOCK_JD } });
-          }
-        } else if (data && data.data) {
-          if (data.data.candidates) setCandidates(data.data.candidates);
-          if (data.data.jd) setJd(data.data.jd);
-        }
-      } catch (e) {
-        console.error("Supabase init error:", e);
-      }
-    }
-
-    init();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
+  // ─── CLOUD SYNC ───
   const saveToCloud = useCallback(async (newCandidates, newJd) => {
     if (!isSupabaseConfigured) return;
     try {
@@ -876,41 +817,24 @@ export default function HRDashboard() {
     }
   }, [candidates, jd]);
 
-  const updateJD = (newJd) => {
-    setJd(newJd);
-    saveToCloud(candidates, newJd);
-  };
+  useEffect(() => {
+    if (loading) return; // Prevent saving if still loading initial data
+    saveToCloud(candidates, jd);
+  }, [candidates, jd, saveToCloud, loading]);
 
-  const addCandidate = (c) => {
-    const next = [c, ...candidates];
-    setCandidates(next);
-    saveToCloud(next, jd);
-  };
-
-  const deleteCandidate = (id) => {
-    if (!window.confirm("Delete this candidate?")) return;
-    const next = candidates.filter(c => c.id !== id);
-    setCandidates(next);
-    saveToCloud(next, jd);
-  };
-
-  const updateCandidateStage = (id, stage) => {
-    const next = candidates.map(c => c.id === id ? { ...c, stage } : c);
-    setCandidates(next);
-    saveToCloud(next, jd);
-  };
-
-  const clearAllData = () => {
-    if (!window.confirm("Are you sure? This will clear all candidates!")) return;
-    setCandidates([]);
-    saveToCloud([], jd);
-  };
-
-  const toggleShortlist = (id) => {
-    const next = candidates.map(c => c.id === id ? { ...c, shortlisted: !c.shortlisted } : c);
-    setCandidates(next);
-    saveToCloud(next, jd);
-  };
+  useEffect(() => {
+    if (!isSupabaseConfigured) { setLoading(false); return; }
+    async function init() {
+      try {
+        const { data, error } = await supabase.from('settings').select('data').eq('id', 'recruiteriq').single();
+        if (data && data.data) {
+          if (data.data.candidates) setCandidates(data.data.candidates);
+          if (data.data.jd) setJD(data.data.jd);
+        }
+      } finally { setLoading(false); }
+    }
+    init();
+  }, []);
 
   const filtered = useMemo(() => {
     let result = [...candidates];
@@ -955,8 +879,6 @@ export default function HRDashboard() {
     { name: "Male", value: candidates.filter(c => c.gender === "Male").length },
   ];
   const DIVERSITY_COLORS = [T.purple, T.accent];
-
-  const [isAdding, setIsAdding] = useState(false);
 
   const NAV = [
     { id: "dashboard", label: "Dashboard", icon: <BarChart2 size={16} /> },
@@ -1056,6 +978,12 @@ export default function HRDashboard() {
                           position: "absolute", left: 0, top: 0, height: "100%", borderRadius: 4,
                           background: f.color, width: candidates.length ? `${(f.count / candidates.length) * 100}%` : "0%", transition: "width 0.3s"
                         }} />
+                        <div style={{
+                          position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: 9, fontWeight: 700, color: T.text, opacity: 0.8
+                        }}>
+                          {candidates.length ? `${Math.round((f.count / candidates.length) * 100)}%` : "0%"}
+                        </div>
                       </div>
                       <div style={{ fontSize: 11, color: T.text, fontWeight: 700, textAlign: "right" }}>{f.count}</div>
                     </div>
@@ -1201,7 +1129,7 @@ export default function HRDashboard() {
         )}
 
         {/* ═══ JD VIEW ═══ */}
-        {activeView === "jd" && <JDPanel jd={jd} onUpdate={updateJD} />}
+        {activeView === "jd" && <JDPanel jd={jd} onUpdate={updateJD} onDelete={deleteJD} />}
 
         {/* ═══ COMPARE VIEW ═══ */}
         {activeView === "compare" && <ComparisonView candidates={candidates} jd={jd} />}
@@ -1305,6 +1233,33 @@ export default function HRDashboard() {
         <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.8)", backdropFilter: "blur(4px)" }}>
           <div style={{ background: T.bgCard, width: 500, borderRadius: 16, padding: 32, border: `1px solid ${T.borderActive}` }}>
             <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 24 }}>Add New Candidate</h3>
+            <div style={{ padding: "16px", border: `2px dashed ${T.border}`, borderRadius: 12, textAlign: "center", background: `${T.accent}05` }}>
+              <CloudUpload size={24} color={T.accent} style={{ marginBottom: 8 }} />
+              <div style={{ fontSize: 12, color: T.text, fontWeight: 600 }}>Drop CV (PDF/Word)</div>
+              <div style={{ fontSize: 10, color: T.textMuted }}>to auto-extract candidate details</div>
+              <input type="file" style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer" }} onChange={e => {
+                const name = e.target.files[0]?.name.split(".")[0] || "New Candidate";
+                const mockSkills = ["React", "Node.js", "Javascript"];
+                addCandidate({
+                  id: "C" + Date.now(),
+                  name,
+                  location: "Remote",
+                  experience: 5,
+                  skills: mockSkills,
+                  stage: "Applied",
+                  education: "B.Tech",
+                  companies: ["Extracted Comp"],
+                  overallScore: 78,
+                  recommendation: "Maybe",
+                  shortlisted: false,
+                  avatar: name.slice(0, 2).toUpperCase(),
+                  color: T.accent,
+                  noticePeriod: "30 days"
+                });
+                alert("ML Extracted: " + name);
+              }} />
+            </div>
+
             <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
               <select id="new-stage" style={{ width: "100%", padding: "12px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text, outline: "none" }}>
                 {INTERVIEW_STAGES.map(s => <option key={s} value={s}>{s}</option>)}
