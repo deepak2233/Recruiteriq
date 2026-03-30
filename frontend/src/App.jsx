@@ -1305,21 +1305,44 @@ export default function HRDashboard() {
         <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.8)", backdropFilter: "blur(4px)" }}>
           <div style={{ background: T.bgCard, width: 500, borderRadius: 16, padding: 32, border: `1px solid ${T.borderActive}` }}>
             <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 24 }}>Add New Candidate</h3>
-            <div style={{ display: "grid", gap: 16 }}>
-              <input id="new-name" placeholder="Full Name" style={{ width: "100%", padding: "12px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text }} />
-              <input id="new-exp" type="number" placeholder="Experience (years)" style={{ width: "100%", padding: "12px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text }} />
-              <input id="new-loc" placeholder="Location" style={{ width: "100%", padding: "12px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text }} />
-              <input id="new-skills" placeholder="Skills (comma separated)" style={{ width: "100%", padding: "12px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text }} />
-              noticePeriod: "30 days"
+            <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
+              <select id="new-stage" style={{ width: "100%", padding: "12px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text, outline: "none" }}>
+                {INTERVIEW_STAGES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+              <div style={{ display: "flex", gap: 12 }}>
+                <Btn variant="ghost" s={{ flex: 1 }} onClick={() => setIsAdding(false)}>Cancel</Btn>
+                <Btn s={{ flex: 1 }} onClick={() => {
+                  const name = document.getElementById("new-name").value;
+                  const exp = parseFloat(document.getElementById("new-exp").value) || 0;
+                  const loc = document.getElementById("new-loc").value;
+                  const skills = document.getElementById("new-skills").value.split(",").map(s => s.trim()).filter(Boolean);
+                  const stage = document.getElementById("new-stage").value;
+
+                  if (!name) return alert("Name is required");
+
+                  addCandidate({
+                    id: "C" + Date.now(),
+                    name,
+                    location: loc || "Remote",
+                    experience: exp,
+                    skills,
+                    stage,
+                    education: "B.Tech",
+                    companies: ["New Company"],
+                    overallScore: Math.floor(Math.random() * 40) + 60,
+                    recommendation: "Maybe",
+                    shortlisted: false,
+                    avatar: name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2),
+                    color: T.accent,
+                    noticePeriod: "30 days"
                   });
-              setIsAdding(false);
+                  setIsAdding(false);
                 }}>Add Candidate</Btn>
+              </div>
+            </div>
           </div>
         </div>
-          </div>
-        </div >
-      )
-}
-    </div >
+      )}
+    </div>
   );
 }
