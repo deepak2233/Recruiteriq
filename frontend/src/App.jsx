@@ -2,6 +2,11 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area, Treemap } from "recharts";
 import { Search, Upload, FileText, Users, CheckCircle, XCircle, AlertTriangle, ChevronDown, ChevronRight, Star, Filter, Download, Eye, MessageSquare, Clock, Briefcase, GraduationCap, Award, MapPin, Phone, Mail, Linkedin, Github, TrendingUp, BarChart2, PieChart as PieChartIcon, Layers, Settings, Bell, Menu, X, Plus, Trash2, Edit3, Copy, ExternalLink, Zap, Target, Shield, BookOpen, Code, Database, Globe, Cpu, ArrowUpRight, ArrowDownRight, Minus, RefreshCw, ChevronLeft, MoreVertical, Hash, Calendar, DollarSign, CloudUpload } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "./supabase";
+import * as pdfjsLib from "pdfjs-dist";
+import mammoth from "mammoth";
+
+// Initialize PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
 
 // ─── DESIGN TOKENS ────────────────────────────────────────────
 const T = {
@@ -21,26 +26,71 @@ const T = {
 };
 
 // ─── MOCK DATA ENGINE ─────────────────────────────────────────
-const MOCK_JD = {
-  title: "Senior Full-Stack Engineer",
-  company: "TechNova Global",
-  location: "Bangalore, India (Hybrid)",
+const DEFAULT_JD = {
+  title: "Senior Full Stack Engineer",
+  company: "TechMob Services",
   experience: "5-8 years",
-  salary: "₹35L - ₹55L",
+  salary: "₹35L - ₹50L",
   department: "Engineering",
-  mandatorySkills: ["React", "Node.js", "TypeScript", "PostgreSQL", "AWS", "Docker", "REST APIs", "Git"],
-  preferredSkills: ["GraphQL", "Kubernetes", "Redis", "Elasticsearch", "CI/CD", "Terraform", "Python"],
   education: "B.Tech/M.Tech in CS/IT or equivalent",
   certifications: ["AWS Certified", "Kubernetes Certified"],
-  domainKnowledge: ["Fintech", "E-commerce", "SaaS"],
-  responsibilities: [
-    "Design and build scalable microservices architecture",
-    "Lead frontend development with React and TypeScript",
-    "Mentor junior engineers and conduct code reviews",
-    "Collaborate with product and design teams",
-    "Optimize application performance and reliability",
-  ],
-  parsed: true,
+  domain: ["Fintech", "E-commerce", "SaaS"],
+  description: "We are looking for a Senior Full Stack Engineer to lead our core platform team. You will be responsible for designing and implementing scalable services and delightful user experiences.",
+  mandatorySkills: ["React", "Node.js", "TypeScript", "PostgreSQL", "AWS"],
+  preferredSkills: ["Docker", "Kubernetes", "GraphQL", "Redis", "Python", "Terraform", "CI/CD"],
+};
+
+const MOCK_JD = DEFAULT_JD; // Alias for safety
+
+// ─── EXTRACTION UTILITIES ─────────────────────────────────────
+const extractTextFromFile = async (file) => {
+  const type = file.name.split('.').pop().toLowerCase();
+  const arrayBuffer = await file.arrayBuffer();
+  if (type === 'pdf') {
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let text = "";
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      text += content.items.map(item => item.str).join(" ") + "\n";
+    }
+    return text;
+  } else if (type === 'docx') {
+    const result = await mammoth.extractRawText({ arrayBuffer });
+    return result.value;
+  }
+  return "";
+};
+
+const parseResumeText = (text) => {
+  const lines = text.split('\n').filter(l => l.trim());
+  const name = lines[0]?.trim() || "New Candidate";
+  const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+  const email = emailMatch ? emailMatch[0] : "";
+  const phoneMatch = text.match(/[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}/);
+  const phone = phoneMatch ? phoneMatch[0] : "";
+
+  // Heuristic skills
+  const skillKeywords = ["React", "Node.js", "Python", "Java", "SQL", "AWS", "Docker", "Kubernetes", "Azure", "GCP", "TypeScript", "JavaScript"];
+  const skills = skillKeywords.filter(s => text.toLowerCase().includes(s.toLowerCase()));
+
+  // Heuristic Experience
+  const expMatch = text.match(/(\d+)\+?\s*years?/i) || text.match(/(\d+)\s*y/i);
+  const experience = expMatch ? parseFloat(expMatch[1]) : 5;
+
+  return { name, email, phone, skills, experience, location: "Extracted", education: "B.Tech" };
+};
+
+const parseJDText = (text) => {
+  const lines = text.split('\n').filter(l => l.trim());
+  const title = lines[0]?.trim() || "Senior Developer";
+  const salaryMatch = text.match(/(₹|\$)\s?\d+[K|L|M]?\s?-\s?(₹|\$)\s?\d+[K|L|M]?/i);
+  const salary = salaryMatch ? salaryMatch[0] : "₹30L - ₹50L";
+
+  const skillKeywords = ["React", "Node.js", "Python", "AWS", "Docker", "SQL", "PostgreSQL", "Terraform", "CI/CD"];
+  const mandatorySkills = skillKeywords.filter(s => text.toLowerCase().includes(s.toLowerCase())).slice(0, 5);
+
+  return { title, salary, mandatorySkills, description: text.slice(0, 300) + "..." };
 };
 
 const generateCandidates = () => [
@@ -216,19 +266,6 @@ const HIRING_TRENDS = [
   { month: "Mar", applications: 320, shortlisted: 85, hired: 7 },
 ];
 
-const DEFAULT_JD = {
-  title: "Senior Full Stack Engineer",
-  company: "TechMob Services",
-  experience: "5-8 years",
-  salary: "₹35L - ₹50L",
-  department: "Engineering",
-  education: "B.Tech/M.Tech in CS/IT or equivalent",
-  certifications: ["AWS Certified", "Kubernetes Certified"],
-  domain: ["Fintech", "E-commerce", "SaaS"],
-  description: "We are looking for a Senior Full Stack Engineer to lead our core platform team. You will be responsible for designing and implementing scalable services and delightful user experiences.",
-  mandatorySkills: ["React", "Node.js", "TypeScript", "PostgreSQL", "AWS"],
-  preferredSkills: ["Docker", "Kubernetes", "GraphQL", "Redis", "Python", "Terraform", "CI/CD"],
-};
 const JD_TEMPLATE = { ...DEFAULT_JD, title: "Untitled Role", company: "Company Name", mandatorySkills: [], preferredSkills: [], certifications: [], domain: [] };
 
 // ─── UTILITY COMPONENTS ───────────────────────────────────────
@@ -742,22 +779,45 @@ const JDPanel = ({ jd, onUpdate, onDelete }) => {
 
   const handleSave = () => { onUpdate(edited); setIsEditing(false); };
 
-  const Field = ({ label, value, keyName, icon: Icon }) => (
+  const Field = ({ label, value, keyName, icon: Icon, isMultiselect = false }) => (
     <div style={{ marginBottom: 16 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: T.textMuted, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
         {Icon && <Icon size={12} />} {label}
       </div>
       {isEditing ? (
         <input
-          value={value}
-          onChange={e => setEdited({ ...edited, [keyName]: e.target.value })}
+          value={isMultiselect ? value.join(", ") : value}
+          onChange={e => {
+            const val = isMultiselect ? e.target.value.split(",").map(v => v.trim()).filter(Boolean) : e.target.value;
+            setEdited({ ...edited, [keyName]: val });
+          }}
           style={{ width: "100%", padding: "8px 12px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.borderActive}`, color: T.text, fontSize: 13, outline: "none" }}
         />
       ) : (
-        <div style={{ fontSize: 13, color: T.text, fontWeight: 500 }}>{value}</div>
+        <div style={{ fontSize: 13, color: T.text, fontWeight: 500 }}>
+          {isMultiselect ? (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+              {value.map(v => <Badge key={v} size="xs" variant="outline">{v}</Badge>)}
+            </div>
+          ) : value}
+        </div>
       )}
     </div>
   );
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const text = await extractTextFromFile(file);
+      const parsed = parseJDText(text);
+      setEdited({ ...edited, ...parsed });
+      alert("JD extracted successfully! Review and click Save.");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to extract JD.");
+    }
+  };
 
   return (
     <div style={{ background: T.bgCard, borderRadius: 12, border: `1px solid ${T.border}`, overflow: "hidden" }}>
@@ -783,23 +843,42 @@ const JDPanel = ({ jd, onUpdate, onDelete }) => {
 
       <div style={{ padding: 24 }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-          <Field label="Experience" value={isEditing ? edited.experience : jd.experience} keyName="experience" icon={Clock} />
-          <Field label="Salary Range" value={isEditing ? edited.salary : jd.salary} keyName="salary" icon={DollarSign} />
-          <Field label="Department" value={isEditing ? edited.department : jd.department} keyName="department" icon={Briefcase} />
-          <Field label="Education" value={isEditing ? edited.education : jd.education} keyName="education" icon={GraduationCap} />
-        </div>
-
-        <div style={{ marginTop: 8 }}>
-          <div style={{ fontSize: 11, color: T.textMuted, fontWeight: 600, textTransform: "uppercase", marginBottom: 12 }}>Mandatory Skills</div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            {jd.mandatorySkills.map(s => <Badge key={s} variant="success">{s}</Badge>)}
+          <div>
+            <Field label="Experience" value={edited.experience} keyName="experience" icon={Clock} />
+            <Field label="Salary Range" value={edited.salary} keyName="salary" icon={DollarSign} />
+            <Field label="Department" value={edited.department} keyName="department" icon={Briefcase} />
+          </div>
+          <div>
+            <Field label="Education" value={edited.education} keyName="education" icon={GraduationCap} />
+            <Field label="Certifications" value={edited.certifications} keyName="certifications" icon={Award} isMultiselect />
+            <Field label="Domain" value={edited.domain} keyName="domain" icon={Globe} isMultiselect />
           </div>
         </div>
 
-        <div style={{ marginTop: 24, padding: "16px", border: `2px dashed ${T.border}`, borderRadius: 12, textAlign: "center", cursor: "pointer", background: `${T.accent}05` }} onClick={() => alert("Upload PDF/Word to extract JD")}>
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 11, color: T.textMuted, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Description</div>
+          {isEditing ? (
+            <textarea
+              value={edited.description}
+              onChange={e => setEdited({ ...edited, description: e.target.value })}
+              rows={4}
+              style={{ width: "100%", padding: "12px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.borderActive}`, color: T.text, fontSize: 13, outline: "none", resize: "none" }}
+            />
+          ) : (
+            <div style={{ fontSize: 13, color: T.text, lineHeight: 1.6, opacity: 0.9 }}>{jd.description}</div>
+          )}
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+          <Field label="Mandatory Skills" value={edited.mandatorySkills} keyName="mandatorySkills" icon={Code} isMultiselect />
+          <Field label="Preferred Skills" value={edited.preferredSkills} keyName="preferredSkills" icon={Layers} isMultiselect />
+        </div>
+
+        <div style={{ marginTop: 24, padding: "16px", border: `2px dashed ${T.border}`, borderRadius: 12, textAlign: "center", cursor: "pointer", background: `${T.accent}05`, position: "relative" }}>
+          <input type="file" accept=".pdf,.docx" onChange={handleFileUpload} style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer" }} />
           <CloudUpload size={24} color={T.accent} style={{ marginBottom: 8 }} />
-          <div style={{ fontSize: 13, fontWeight: 600, color: T.text }}>Extract from Document</div>
-          <div style={{ fontSize: 11, color: T.textMuted }}>AI will parse PDF/Word automatically</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: T.text }}>Upload JD (PDF/Word)</div>
+          <div style={{ fontSize: 11, color: T.textMuted }}>AI will parse title, salary, and skills</div>
         </div>
       </div>
     </div>
@@ -815,6 +894,8 @@ export default function HRDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
+  const [newCand, setNewCand] = useState({ name: "", experience: 0, location: "", skills: [], stage: "Applied", education: "", currentCTC: "", expectedCTC: "", noticePeriod: "" });
+  const [modalTab, setModalTab] = useState("scan"); // "scan" or "manual"
   const [sortBy, setSortBy] = useState("overallScore");
   const [sortDir, setSortDir] = useState("desc");
   const [filterShortlisted, setFilterShortlisted] = useState("all");
@@ -1258,70 +1339,93 @@ export default function HRDashboard() {
 
       {/* ─── ADD CANDIDATE MODAL ─── */}
       {isAdding && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.8)", backdropFilter: "blur(4px)" }}>
-          <div style={{ background: T.bgCard, width: 500, borderRadius: 16, padding: 32, border: `1px solid ${T.borderActive}` }}>
-            <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 24 }}>Add New Candidate</h3>
-            <div style={{ padding: "16px", border: `2px dashed ${T.border}`, borderRadius: 12, textAlign: "center", background: `${T.accent}05` }}>
-              <CloudUpload size={24} color={T.accent} style={{ marginBottom: 8 }} />
-              <div style={{ fontSize: 12, color: T.text, fontWeight: 600 }}>Drop CV (PDF/Word)</div>
-              <div style={{ fontSize: 10, color: T.textMuted }}>to auto-extract candidate details</div>
-              <input type="file" style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer" }} onChange={e => {
-                const name = e.target.files[0]?.name.split(".")[0] || "New Candidate";
-                const mockSkills = ["React", "Node.js", "Javascript"];
-                addCandidate({
-                  id: "C" + Date.now(),
-                  name,
-                  location: "Remote",
-                  experience: 5,
-                  skills: mockSkills,
-                  stage: "Applied",
-                  education: "B.Tech",
-                  companies: ["Extracted Comp"],
-                  overallScore: 78,
-                  recommendation: "Maybe",
-                  shortlisted: false,
-                  avatar: name.slice(0, 2).toUpperCase(),
-                  color: T.accent,
-                  noticePeriod: "30 days"
-                });
-                alert("ML Extracted: " + name);
-              }} />
+        <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.8)", backdropFilter: "blur(8px)" }}>
+          <div style={{ background: T.bgCard, width: 600, borderRadius: 20, padding: 0, border: `1px solid ${T.borderActive}`, overflow: "hidden", maxHeight: "90vh", display: "flex", flexDirection: "column" }}>
+            <div style={{ padding: "24px 32px", borderBottom: `1px solid ${T.border}`, background: `${T.accent}05`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h3 style={{ fontSize: 20, fontWeight: 700, color: T.text }}>Add New Candidate</h3>
+              <button onClick={() => setIsAdding(false)} style={{ background: "none", border: "none", color: T.textMuted, cursor: "pointer" }}><X size={20} /></button>
             </div>
 
-            <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
-              <select id="new-stage" style={{ width: "100%", padding: "12px", borderRadius: 8, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text, outline: "none" }}>
-                {INTERVIEW_STAGES.map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
-              <div style={{ display: "flex", gap: 12 }}>
-                <Btn variant="ghost" s={{ flex: 1 }} onClick={() => setIsAdding(false)}>Cancel</Btn>
-                <Btn s={{ flex: 1 }} onClick={() => {
-                  const name = document.getElementById("new-name").value;
-                  const exp = parseFloat(document.getElementById("new-exp").value) || 0;
-                  const loc = document.getElementById("new-loc").value;
-                  const skills = document.getElementById("new-skills").value.split(",").map(s => s.trim()).filter(Boolean);
-                  const stage = document.getElementById("new-stage").value;
-
-                  if (!name) return alert("Name is required");
-
-                  addCandidate({
-                    id: "C" + Date.now(),
-                    name,
-                    location: loc || "Remote",
-                    experience: exp,
-                    skills,
-                    stage,
-                    education: "B.Tech",
-                    companies: ["New Company"],
-                    overallScore: Math.floor(Math.random() * 40) + 60,
-                    recommendation: "Maybe",
-                    shortlisted: false,
-                    avatar: name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2),
-                    color: T.accent,
-                    noticePeriod: "30 days"
-                  });
-                  setIsAdding(false);
-                }}>Add Candidate</Btn>
+            <div style={{ padding: "12px 32px", background: T.bgSurface, borderBottom: `1px solid ${T.border}` }}>
+              <div style={{ display: "flex", gap: 16 }}>
+                <button onClick={() => setModalTab("scan")} style={{ paddingBottom: 8, fontSize: 13, fontWeight: 700, color: modalTab === "scan" ? T.accent : T.textMuted, borderBottom: `2px solid ${modalTab === "scan" ? T.accent : "transparent"}`, background: "none", borderLeft: "none", borderRight: "none", borderTop: "none", cursor: "pointer" }}>Scan Resume</button>
+                <button onClick={() => setModalTab("manual")} style={{ paddingBottom: 8, fontSize: 13, fontWeight: 700, color: modalTab === "manual" ? T.accent : T.textMuted, borderBottom: `2px solid ${modalTab === "manual" ? T.accent : "transparent"}`, background: "none", borderLeft: "none", borderRight: "none", borderTop: "none", cursor: "pointer" }}>Manual Entry</button>
               </div>
+            </div>
+
+            <div style={{ padding: 32, overflowY: "auto", flex: 1 }}>
+              {modalTab === "scan" && (
+                <div style={{ padding: "40px 20px", border: `2px dashed ${T.border}`, borderRadius: 16, textAlign: "center", background: `${T.accent}05`, position: "relative" }}>
+                  <input type="file" accept=".pdf,.docx" style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer" }} onChange={async e => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    try {
+                      const text = await extractTextFromFile(file);
+                      const parsed = parseResumeText(text);
+                      setNewCand({ ...newCand, ...parsed });
+                      setModalTab("manual");
+                      alert("Resume scanned! Review and complete the profile.");
+                    } catch (err) {
+                      console.error(err);
+                      alert("Extraction failed.");
+                    }
+                  }} />
+                  <CloudUpload size={48} color={T.accent} style={{ marginBottom: 16, opacity: 0.8 }} />
+                  <div style={{ fontSize: 16, color: T.text, fontWeight: 700, marginBottom: 8 }}>Upload Candidate Resume</div>
+                  <div style={{ fontSize: 13, color: T.textMuted }}>AI will extract name, skills, and experience automatically</div>
+                </div>
+              )}
+
+              {modalTab === "manual" && (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+                  <div style={{ gridColumn: "span 2" }}>
+                    <div style={{ fontSize: 11, color: T.textMuted, fontWeight: 600, textTransform: "uppercase", marginBottom: 6 }}>Full Name</div>
+                    <input value={newCand.name} onChange={e => setNewCand({ ...newCand, name: e.target.value })} placeholder="John Doe" style={{ width: "100%", padding: "10px 14px", borderRadius: 10, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text, outline: "none" }} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 11, color: T.textMuted, fontWeight: 600, textTransform: "uppercase", marginBottom: 6 }}>Experience (Years)</div>
+                    <input type="number" value={newCand.experience} onChange={e => setNewCand({ ...newCand, experience: parseFloat(e.target.value) })} style={{ width: "100%", padding: "10px 14px", borderRadius: 10, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text, outline: "none" }} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 11, color: T.textMuted, fontWeight: 600, textTransform: "uppercase", marginBottom: 6 }}>Location</div>
+                    <input value={newCand.location} onChange={e => setNewCand({ ...newCand, location: e.target.value })} placeholder="Bangalore" style={{ width: "100%", padding: "10px 14px", borderRadius: 10, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text, outline: "none" }} />
+                  </div>
+                  <div style={{ gridColumn: "span 2" }}>
+                    <div style={{ fontSize: 11, color: T.textMuted, fontWeight: 600, textTransform: "uppercase", marginBottom: 6 }}>Skills (Comma separated)</div>
+                    <input value={newCand.skills.join(", ")} onChange={e => setNewCand({ ...newCand, skills: e.target.value.split(",").map(s => s.trim()).filter(Boolean) })} placeholder="React, Node.js" style={{ width: "100%", padding: "10px 14px", borderRadius: 10, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text, outline: "none" }} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 11, color: T.textMuted, fontWeight: 600, textTransform: "uppercase", marginBottom: 6 }}>Current Stage</div>
+                    <select value={newCand.stage} onChange={e => setNewCand({ ...newCand, stage: e.target.value })} style={{ width: "100%", padding: "10px 14px", borderRadius: 10, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text, outline: "none" }}>
+                      {INTERVIEW_STAGES.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 11, color: T.textMuted, fontWeight: 600, textTransform: "uppercase", marginBottom: 6 }}>Notice Period</div>
+                    <input value={newCand.noticePeriod} onChange={e => setNewCand({ ...newCand, noticePeriod: e.target.value })} placeholder="30 days" style={{ width: "100%", padding: "10px 14px", borderRadius: 10, background: T.bgSurface, border: `1px solid ${T.border}`, color: T.text, outline: "none" }} />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div style={{ padding: "24px 32px", borderTop: `1px solid ${T.border}`, display: "flex", gap: 12, justifyContent: "flex-end", background: `${T.accent}02` }}>
+              <Btn variant="ghost" onClick={() => setIsAdding(false)}>Cancel</Btn>
+              <Btn onClick={() => {
+                if (!newCand.name) return alert("Name is required");
+                addCandidate({
+                  ...newCand,
+                  id: "C" + Date.now(),
+                  avatar: newCand.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2),
+                  color: T.accent,
+                  overallScore: Math.floor(Math.random() * 30) + 65,
+                  recommendation: "Maybe",
+                  shortlisted: false,
+                  companies: ["Manual Entry"],
+                  education: newCand.education || "B.Tech"
+                });
+                setIsAdding(false);
+                setNewCand({ name: "", experience: 0, location: "", skills: [], stage: "Applied", education: "", currentCTC: "", expectedCTC: "", noticePeriod: "" });
+              }}>Register Candidate</Btn>
             </div>
           </div>
         </div>
