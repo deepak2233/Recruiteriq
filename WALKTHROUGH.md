@@ -13,10 +13,10 @@ Configured `vercel.json` to deploy the Vite frontend as a static site. Since the
 - **Data Sync**: Updated `App.jsx` to fetch and persist data (Candidates and JD) to a `settings` table in Supabase.
 - **Advanced JD Controls**: Added Salary, Department, and Domain fields with full editability and a new "Delete/Reset" cycle.
 - **Interactive Funnel**: Refactored the Hiring Funnel to display both total counts and real-time conversion percentages.
-- **File Extraction (AI Simulated)**: 
-  - Drag-and-drop zones for JD and Candidate Resume uploads.
-  - Heuristic text parsing to automatically populate dashboard fields, streamlining the "Add Candidate" workflow.
-- **Optimized Persistence**: Real-time Supabase synchronization for all new advanced fields.
+- **Detailed Recruiter Assessments**: 
+  - Added a dedicated "Recruiter Assessment" section in candidate profiles.
+  - Injected high-fidelity sample data (e.g., Azure Data Engineer "Siddharth Rao") to showcase complex technical feedback management.
+- **SSH Deployment Verified**: Resolved repository access issues to push the final production-ready code.
 
 ### 3. Production Build Verified
 - Upgraded local Node.js to v18 (required for Vite 5).
