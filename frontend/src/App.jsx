@@ -189,6 +189,24 @@ const generateCandidates = () => [
     recruiterNotes: "Decent but missing cloud. Immediate availability is a plus.",
     avatar: "RG", color: T.orange,
   },
+  {
+    id: "C009", name: "Siddharth Rao", email: "siddharth.r@techmail.com", phone: "+91-99887-76655",
+    location: "Bangalore", noticePeriod: "45 days", expectedCTC: "₹42L", currentCTC: "₹34L",
+    experience: 6.2, education: "B.E, PESIT", gender: "Male",
+    skills: ["Azure Data Factory", "Data Lake", "Data Governance", "SQL", "Spark", "Python", "ETL"],
+    companies: ["Accenture (3y)", "Cognizant (3y)"],
+    certifications: ["Azure Data Engineer"],
+    projects: ["Built enterprise data lake on Azure", "Designed scalable ADF pipelines for fintech"],
+    achievements: ["Top Performer 2023"],
+    overallScore: 78, skillScore: 82, expScore: 75, eduScore: 72, keywordScore: 80,
+    missingMandatory: ["React"], missingPreferred: ["Kubernetes", "Node.js"],
+    strengths: ["Strong Azure Data Factory knowledge", "Data Lake integration expertise", "Solid data governance understanding"],
+    gaps: ["Python ETL pipeline coding proficiency", "Disaster recovery depth", "Databricks architecture articulation"],
+    redFlags: [],
+    recommendation: "Hire", shortlisted: true, stage: "Technical Round 2",
+    recruiterNotes: "The candidate demonstrated a solid understanding of Azure-based data engineering concepts and enterprise data architecture. While there were some gaps in coding proficiency (Python ETL), they showed strength in ADF and Data Lake integration. Core understanding of Databricks and DR is present but needs more structured articulation. Recommendation: Hire with targeted upskilling.",
+    avatar: "SR", color: T.accent,
+  },
 ];
 
 const INTERVIEW_STAGES = ["Applied", "Screening", "Technical Round 1", "Technical Round 2", "HR Round", "Final Round", "Offer", "Rejected"];
@@ -515,6 +533,16 @@ const CandidateDetail = ({ candidate, jd, onClose, onShortlist, onStageChange })
 
           {activeTab === "overview" && (
             <>
+              {/* Recruiter Notes */}
+              {c.recruiterNotes && (
+                <div style={{ background: `${T.accent}10`, borderRadius: 10, padding: 16, border: `1px solid ${T.accent}30`, marginBottom: 16 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: T.accent, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 10 }}>
+                    <MessageSquare size={14} /> Recruiter Assessment
+                  </div>
+                  <div style={{ fontSize: 13, color: T.text, lineHeight: 1.6, fontStyle: "italic" }}>"{c.recruiterNotes}"</div>
+                </div>
+              )}
+
               {/* Skills */}
               <div style={{ background: T.bgCard, borderRadius: 10, padding: 16, border: `1px solid ${T.border}`, marginBottom: 16 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: T.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Skills</div>
